@@ -1,3 +1,6 @@
 [submodule "simpleflashfs"]
 	path = simpleflashfs
 	url = https://github.com/majorkingleo/simpleflashfs.git
+[submodule "cpputils"]
+	path = cpputils
+	url = https://github.com/majorkingleo/cpputils.git
