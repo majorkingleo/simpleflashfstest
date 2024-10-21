@@ -1,0 +1,3 @@
+[submodule "simpleflashfs"]
+	path = simpleflashfs
+	url = https://github.com/majorkingleo/simpleflashfs.git
