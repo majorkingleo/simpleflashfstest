@@ -6,8 +6,8 @@
 #define SRC_TEST_STATIC_STATIC_FS_H_
 
 
-#include <src/static/SimpleFlashFsStatic.h>
-#include "../src/crc/crc.h"
+#include <SimpleFlashFsStatic.h>
+#include "crc.h"
 
 static constexpr const std::size_t SFF_FILENAME_MAX = 10;
 static constexpr const std::size_t SFF_PAGE_SIZE = 4*1024;

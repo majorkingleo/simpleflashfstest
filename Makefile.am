@@ -5,7 +5,7 @@ bin_PROGRAMS=\
 	test_2face
 		
 simple_flash_fs_tar_SOURCES=\
-		src_simple_flash_fs_tar/main.cc \
+		simpleflashfs/src_simple_flash_fs_tar/main.cc \
 		tools_config.h
 		
 test_dynamic_SOURCES=\
@@ -26,21 +26,21 @@ test_static_SOURCES=\
 		src_test_static/test_static_open.cc \
 		src_test_static/test_static_2pages.h \
 		src_test_static/test_static_2pages.cc \
-		src_2face/H7TwoFace.h \
-		src_2face/H7TwoFaceConfig.h \
-		src_2face/H7TwoFace.cc \
+		simpleflashfs/src_2face/H7TwoFace.h \
+		simpleflashfs/src_2face/H7TwoFaceConfig.h \
+		simpleflashfs/src_2face/H7TwoFace.cc \
 		tools_config.h
 		
 test_2face_SOURCES=\
-		src_2face/H7TwoFace.h \
-		src_2face/H7TwoFaceConfig.h \
-		src_2face/H7TwoFace.cc \
-		src_2face/SimpleFlashFsFileBuffer.h \
-		src_2face/SimpleFlashFsFileBuffer.cc \
-		src_2face/SimpleFlashFs2FlashPages.h \
-		src_2face/SimpleFlashFsNoDel.h \
-		src_2face/SimpleIni.h \
-		src_2face/SimpleIni.cc \
+		simpleflashfs/src_2face/H7TwoFace.h \
+		simpleflashfs/src_2face/H7TwoFaceConfig.h \
+		simpleflashfs/src_2face/H7TwoFace.cc \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.h \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.cc \
+		simpleflashfs/src_2face/SimpleFlashFs2FlashPages.h \
+		simpleflashfs/src_2face/SimpleFlashFsNoDel.h \
+		simpleflashfs/src_2face/SimpleIni.h \
+		simpleflashfs/src_2face/SimpleIni.cc \
 		src_test_static/test_2face.cc \
 		src_test_static/test_H7TwoFace.h \
 		src_test_static/test_H7TwoFace.cc \
@@ -53,12 +53,16 @@ test_2face_SOURCES=\
 		src_test_static/FFile.h \
 		tools_config.h				
 
-AM_CPPFLAGS = -I$(top_srcdir)/tools \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/cpputils/cpputilsshared  \
 	-I$(top_srcdir)/cpputils/cpputilsshared/cpputilsformat \
 	-I$(top_srcdir)/cpputils/io \
 	-I$(top_srcdir)/common \
-	-I$(top_srcdir)/src \
+	-I$(top_srcdir)/simpleflashfs/src \
+	-I$(top_srcdir)/simpleflashfs/src/dynamic \
+	-I$(top_srcdir)/simpleflashfs/src/static \
+	-I$(top_srcdir)/simpleflashfs/src/sim_pc \
+	-I$(top_srcdir)/simpleflashfs/src/crc \
 	-std=gnu++20 \
 	-D_GLIBCXX_USE_CXX11_ABI=1 \
 	-D_XOPEN_SOURCE=700 # for cyggwin fileno() \
@@ -72,35 +76,35 @@ noinst_LIBRARIES=cpputils/io/libcpputilsio.a \
 	src/libSimpleFlashFsStatic.a
 	
 src_libSimpleFlashFs_a_SOURCES=\
-		src/crc/crc.c \
-		src/crc/crc.h \
-		src/base/SimpleFlashFsBase.h \
-		src/dynamic/SimpleFlashFsDynamic.h \
-		src/dynamic/SimpleFlashFsDynamic.cc \
-		src/dynamic/SimpleFlashFsDynamicInstanceHandler.h \
-		src/dynamic/SimpleFlashFsDynamicInstanceHandler.cc \
-		src/dynamic/SimpleFlashFsDynamicWrapper.h \
-		src/dynamic/SimpleFlashFsDynamicWrapper.cc \
-		src/SimpleFlashFsFlashMemoryInterface.h \
-		src/SimpleFlashFsConstants.h \
-		src/SimpleFlashFsConstants.cc \
-		src/sim_pc/SimFlashMemoryPc.h \
-		src/sim_pc/SimFlashMemoryPc.cc \
-		src/sim_pc/SimSTM32InternalFlashPc.cc \
-		src/sim_pc/SimSTM32InternalFlashPc.h
+		simpleflashfs/src/crc/crc.c \
+		simpleflashfs/src/crc/crc.h \
+		simpleflashfs/src/base/SimpleFlashFsBase.h \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamic.h \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamic.cc \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamicInstanceHandler.h \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamicInstanceHandler.cc \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamicWrapper.h \
+		simpleflashfs/src/dynamic/SimpleFlashFsDynamicWrapper.cc \
+		simpleflashfs/src/SimpleFlashFsFlashMemoryInterface.h \
+		simpleflashfs/src/SimpleFlashFsConstants.h \
+		simpleflashfs/src/SimpleFlashFsConstants.cc \
+		simpleflashfs/src/sim_pc/SimFlashMemoryPc.h \
+		simpleflashfs/src/sim_pc/SimFlashMemoryPc.cc \
+		simpleflashfs/src/sim_pc/SimSTM32InternalFlashPc.cc \
+		simpleflashfs/src/sim_pc/SimSTM32InternalFlashPc.h
 		
 src_libSimpleFlashFsStatic_a_SOURCES=\
-		src/crc/crc.c \
-		src/crc/crc.h \
-		src/base/SimpleFlashFsBase.h \
-		src/SimpleFlashFsFlashMemoryInterface.h \
-		src/SimpleFlashFsConstants.h \
-		src/SimpleFlashFsConstants.cc \
-		src/sim_pc/SimFlashMemoryPc.h \
-		src/sim_pc/SimFlashMemoryPc.cc \
-		src/sim_pc/SimSTM32InternalFlashPc.cc \
-		src/sim_pc/SimSTM32InternalFlashPc.h \
-		src/static/SimpleFlashFsStatic.h
+		simpleflashfs/src/crc/crc.c \
+		simpleflashfs/src/crc/crc.h \
+		simpleflashfs/src/base/SimpleFlashFsBase.h \
+		simpleflashfs/src/SimpleFlashFsFlashMemoryInterface.h \
+		simpleflashfs/src/SimpleFlashFsConstants.h \
+		simpleflashfs/src/SimpleFlashFsConstants.cc \
+		simpleflashfs/src/sim_pc/SimFlashMemoryPc.h \
+		simpleflashfs/src/sim_pc/SimFlashMemoryPc.cc \
+		simpleflashfs/src/sim_pc/SimSTM32InternalFlashPc.cc \
+		simpleflashfs/src/sim_pc/SimSTM32InternalFlashPc.h \
+		simpleflashfs/src/static/SimpleFlashFsStatic.h
 
 cpputils_io_libcpputilsio_a_SOURCES= \
 	cpputils/io/ColoredOutput.h \

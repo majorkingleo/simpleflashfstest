@@ -1,9 +1,9 @@
 #include "test_dynamic_init.h"
 
-#include <src/dynamic/SimpleFlashFsDynamic.h>
+#include <SimpleFlashFsDynamic.h>
 #include <stderr_exception.h>
 #include <format.h>
-#include "../src/sim_pc/SimFlashMemoryPc.h"
+#include <SimFlashMemoryPc.h>
 
 using namespace Tools;
 using namespace SimpleFlashFs;

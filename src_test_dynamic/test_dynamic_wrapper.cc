@@ -1,13 +1,13 @@
-#include "../src_test_dynamic/test_dynamic_init.h"
-#include "../src_test_dynamic/test_dynamic_wrapper.h"
+#include "test_dynamic_init.h"
+#include "test_dynamic_wrapper.h"
 
-#include <src/dynamic/SimpleFlashFsDynamic.h>
-#include <src/dynamic/SimpleFlashFsDynamicInstanceHandler.h>
+#include <SimpleFlashFsDynamic.h>
+#include <SimpleFlashFsDynamicInstanceHandler.h>
 #include <stderr_exception.h>
 #include <format.h>
-#include <src/dynamic/SimpleFlashFsDynamicWrapper.h>
+#include <SimpleFlashFsDynamicWrapper.h>
 #include <CpputilsDebug.h>
-#include "../src/sim_pc/SimFlashMemoryPc.h"
+#include <SimFlashMemoryPc.h>
 
 #define fopen( path, mode ) SimpleFlashFs_dynamic_fopen( path, mode )
 #define fclose( file ) SimpleFlashFs_dynamic_fclose( file)
