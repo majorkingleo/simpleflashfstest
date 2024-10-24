@@ -111,26 +111,45 @@ public:
 			init();
 			bool ret1 = func();
 			deinit();
-/*
-			CPPDEBUG( "calling mapped memory interface" );
-			init_mapped();
-			bool ret2 = func();
-			deinit_mapped();
 
-
-			if( ret1 != ret2 ) {
-				return !expected_result;
-			}
-*/
 			return ret1;
 
 		} catch( const std::exception & error ) {
 			deinit();
-			deinit_mapped();
 			throw error;
 
 		} catch( ... ) {
 			deinit();
+			throw;
+		}
+	}
+};
+
+class TestCaseH7FuncNoInpMapped : public TestCaseH7Base
+{
+	typedef std::function<bool()> Func;
+	Func func;
+
+public:
+	TestCaseH7FuncNoInpMapped( const std::string & name,
+			bool expected_result_,
+			Func func_ )
+	: TestCaseH7Base( name, expected_result_ ),
+	  func( func_ )
+	  {}
+
+	bool run() override {
+		try {
+			init_mapped();
+			bool ret1 = func();
+			deinit_mapped();
+			return ret1;
+
+		} catch( const std::exception & error ) {
+			deinit_mapped();
+			throw error;
+
+		} catch( ... ) {
 			deinit_mapped();
 			throw;
 		}
@@ -419,7 +438,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_max_files2()
 
 std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_list_files1()
 {
-	return std::make_shared<TestCaseH7FuncNoInp>(__FUNCTION__, true, []() {
+	return std::make_shared<TestCaseH7FuncNoInpMapped>(__FUNCTION__, true, []() {
 		clear_fs();
 
 		std::set<std::string> file_names;
