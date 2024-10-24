@@ -796,7 +796,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 		{
 			float f = 0;
 			if( !ini.read( "section1", "key5", f  ) ) {
-				CPPDEBUG( "reading key3 failed" );
+				CPPDEBUG( "reading key5 failed" );
 				return false;
 			}
 
