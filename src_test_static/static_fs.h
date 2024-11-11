@@ -6,6 +6,7 @@
 #define SRC_TEST_STATIC_STATIC_FS_H_
 
 
+#include <SimpleFlashFsStaticConfig.h>
 #include <SimpleFlashFsStatic.h>
 #include "crc.h"
 
