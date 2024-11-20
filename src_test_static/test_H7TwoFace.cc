@@ -499,7 +499,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write_ini1()
 
 			SimpleFlashFs::StaticFileBuffer<SFF_PAGE_SIZE> fbuffer( *ini_file );
 
-			SimpleIni ini( fbuffer );
+			SimpleFlashFs::SimpleIni ini( fbuffer );
 
 			if( !ini.write( "section1", "key1", "value1"  ) ) {
 				CPPDEBUG( "writing key1 failed" );
@@ -529,7 +529,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write_ini1()
 
 			SimpleFlashFs::StaticFileBuffer<SFF_PAGE_SIZE> fbuffer( *ini_file );
 
-			SimpleIni ini( fbuffer );
+			SimpleFlashFs::SimpleIni ini( fbuffer );
 
 			{
 				std::string_view sv_value;
