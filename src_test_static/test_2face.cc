@@ -147,6 +147,7 @@ int main( int argc, char **argv )
 		const int COL_TEST_RES	= col.addCol( "Test Result" );
 
 		unsigned idx = 0;
+		bool something_failed = false;
 
 		for( auto & test : test_cases ) {
 
@@ -192,6 +193,7 @@ int main( int argc, char **argv )
 
 			if( result != expected_result ) {
 				test_result = co.color_output( ColoredOutput::RED, "failed" );
+				something_failed = true;
 			} else {
 				test_result = co.color_output( ColoredOutput::GREEN, "succeeded" );
 			}
@@ -203,6 +205,13 @@ int main( int argc, char **argv )
 		}
 
 		std::cout << col.toString() << std::endl;
+
+		if( something_failed ) {
+			std::cout << "Complete result: " << co.color_output( ColoredOutput::RED, "FAILED!!" ) << std::endl;
+			return 1;
+		} else {
+			std::cout << "Complete result: " << co.color_output( ColoredOutput::GREEN, "succeeded" ) << std::endl;
+		}
 
 #if __cpp_exceptions > 0
 	} catch( const std::exception & error ) {

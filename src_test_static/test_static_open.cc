@@ -311,6 +311,10 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 	});
 }
 
+/**
+ * Testcase for seeking to a pos without writing the data. So the data between should be filled with
+ * zeros.
+ */
 std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 {
 	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
@@ -383,7 +387,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 {
 	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
-		auto f = fs.open("test.write3", std::ios_base::out | std::ios_base::trunc );
+		auto f = fs.open("test.write4", std::ios_base::out | std::ios_base::trunc );
 
 		if( !f ) {
 			CPPDEBUG( "cannot open file" );
@@ -425,6 +429,140 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 
 			if( v_read1 != v_read_cmp ) {
 				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		{
+			std::vector<std::byte> v_read2( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
+
+			if( read_len != v_read2.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read2 != v_data ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
+
+// same as test_case_static_write4 but no flushing meanwhile
+std::shared_ptr<TestCaseBase<bool>> test_case_static_read1()
+{
+	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
+		auto f = fs.open("test.write4", std::ios_base::out | std::ios_base::trunc );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		unsigned const block_a_size = 200;
+		std::vector<std::byte> v_data( block_a_size, std::byte('X') );
+
+		f.seek(200);
+
+		{
+			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
+			if( bytes_written != v_data.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		if( f.file_size() != block_a_size + 200 ) {
+			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			return false;
+		}
+
+		f.seek(0);
+
+		{
+			std::vector<std::byte> v_read1( 200, std::byte('Y') );
+			std::vector<std::byte> v_read_cmp( 200, std::byte(0) );
+
+			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
+
+			if( read_len != v_read1.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read1 != v_read_cmp ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		{
+			std::vector<std::byte> v_read2( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
+
+			if( read_len != v_read2.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read2 != v_data ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
+
+// same as test_case_static_write4 but no flushing meanwhile
+std::shared_ptr<TestCaseBase<bool>> test_case_static_read2()
+{
+	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
+		auto f = fs.open("test.write3", std::ios_base::out | std::ios_base::trunc );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		unsigned const block_a_size = 400;
+		std::vector<std::byte> v_data( block_a_size, std::byte('X') );
+
+		f.seek(600);
+
+		{
+			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
+			if( bytes_written != v_data.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		if( f.file_size() != block_a_size + 600 ) {
+			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			return false;
+		}
+
+		f.seek(0);
+
+		{
+			std::vector<std::byte> v_read1( 600, std::byte('Y') );
+			std::vector<std::byte> v_read_cmp( 600, std::byte(0) );
+
+			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
+
+			if( read_len != v_read1.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read1 != v_read_cmp ) {
+				CPPDEBUG( format( "invalid data: 0x%X", (unsigned)v_read1[0] ) );
 				return false;
 			}
 		}

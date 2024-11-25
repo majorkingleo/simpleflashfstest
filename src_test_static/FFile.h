@@ -81,13 +81,15 @@ public:
 		return false;
 	}
 
-	void seek( std::size_t pos_ ) override {
+	bool seek( std::size_t pos_ ) override {
 		if( debug ) {
 			CPPDEBUG( Tools::format( "%s: seeking to pos: %d", name, pos_ ) );
 		}
 
 		file.seekg(pos_);
 		file.seekp(pos_);
+
+		return true;
 	}
 
 	 bool delete_file() override {
