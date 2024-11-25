@@ -234,3 +234,216 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write1()
 		return true;
 	});
 }
+
+std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
+{
+	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
+		auto f = fs.open("test.write2", std::ios_base::out | std::ios_base::trunc );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		unsigned const block_a_size = 400;
+		std::vector<std::byte> v_inside_the_inode( block_a_size, std::byte('X') );
+
+		{
+			std::size_t bytes_written = f.write( v_inside_the_inode.data(), v_inside_the_inode.size() );
+			if( bytes_written != v_inside_the_inode.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f.flush();
+
+		std::vector<std::byte> v_on_data_page( block_a_size, std::byte('Y') );
+
+		{
+			std::size_t bytes_written = f.write( v_on_data_page.data(), v_on_data_page.size() );
+			if( bytes_written != v_on_data_page.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f.flush();
+
+		if( f.file_size() != block_a_size * 2 ) {
+			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			return false;
+		}
+
+		f.seek(0);
+
+		{
+			std::vector<std::byte> v_read1( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
+
+			if( read_len != v_read1.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read1 != v_inside_the_inode ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		{
+			std::vector<std::byte> v_read2( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
+
+			if( read_len != v_read2.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read2 != v_on_data_page ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
+
+std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
+{
+	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
+		auto f = fs.open("test.write3", std::ios_base::out | std::ios_base::trunc );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		unsigned const block_a_size = 400;
+		std::vector<std::byte> v_data( block_a_size, std::byte('X') );
+
+		f.seek(600);
+
+		{
+			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
+			if( bytes_written != v_data.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f.flush();
+
+		if( f.file_size() != block_a_size + 600 ) {
+			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			return false;
+		}
+
+		f.seek(0);
+
+		{
+			std::vector<std::byte> v_read1( 600, std::byte('Y') );
+			std::vector<std::byte> v_read_cmp( 600, std::byte(0) );
+
+			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
+
+			if( read_len != v_read1.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read1 != v_read_cmp ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		{
+			std::vector<std::byte> v_read2( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
+
+			if( read_len != v_read2.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read2 != v_data ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
+{
+	return std::make_shared<TestCaseFunc<bool>>(__FUNCTION__, [](SimpleFsNoDel<ConfigH7> & fs) {
+		auto f = fs.open("test.write3", std::ios_base::out | std::ios_base::trunc );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		unsigned const block_a_size = 200;
+		std::vector<std::byte> v_data( block_a_size, std::byte('X') );
+
+		f.seek(200);
+
+		{
+			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
+			if( bytes_written != v_data.size() ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f.flush();
+
+		if( f.file_size() != block_a_size + 200 ) {
+			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			return false;
+		}
+
+		f.seek(0);
+
+		{
+			std::vector<std::byte> v_read1( 200, std::byte('Y') );
+			std::vector<std::byte> v_read_cmp( 200, std::byte(0) );
+
+			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
+
+			if( read_len != v_read1.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read1 != v_read_cmp ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		{
+			std::vector<std::byte> v_read2( block_a_size, std::byte(0) );
+			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
+
+			if( read_len != v_read2.size() ) {
+				CPPDEBUG( format( "%d bytes read", read_len ) );
+				return false;
+			}
+
+			if( v_read2 != v_data ) {
+				CPPDEBUG( "invalid data" );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
