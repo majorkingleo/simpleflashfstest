@@ -12,6 +12,8 @@
 #include "test_static_init.h"
 #include "test_static_open.h"
 #include "test_static_2pages.h"
+#include <set>
+#include <string_utils.h>
 
 using namespace Tools;
 
@@ -38,6 +40,12 @@ int main( int argc, char **argv )
 	o_debug.setDescription("print debugging messages");
 	o_debug.setRequired(false);
 	arg.addOptionR( &o_debug );
+
+	Arg::IntOption o_testcase("t");
+	o_testcase.addName( "testcase" );
+	o_testcase.setDescription("run testcase 37 38 ...");
+	o_testcase.setRequired(false);
+	arg.addOptionR( &o_testcase );
 
 	if( !arg.parse() )
 	{
@@ -95,9 +103,21 @@ int main( int argc, char **argv )
 
 		bool something_failed = false;
 
+		std::set<int> these_testcases_only;
+
+		for( auto & v : *o_testcase.getValues() ) {
+			these_testcases_only.insert(s2x<int>(v,0));
+		}
+
 		for( auto & test : test_cases ) {
 
 			idx++;
+
+			if( !these_testcases_only.empty() ) {
+				if( !these_testcases_only.count(idx) ) {
+					continue;
+				}
+			}
 
 			CPPDEBUG( format( "run test: %s", test->getName() ) );
 
