@@ -100,7 +100,7 @@ bool write_default_ini1( SimpleFlashFs::FileBuffer & file )
 			"  key1 = value1 \t\n" \
 			" \t key2= value2 \n" \
 			"[section3 ]\n" \
-			"# comment 1   \n"
+			"\" comment 1   \n"
 			"  key3 = value3 \t\n" \
 			"; comment = 2   \n"
 			"  key4= value4 \n" \
@@ -381,11 +381,11 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_3()
 {
 	std::string expected_text =
 			"[section1]\n" \
-			"#\tcomment1\n"
+			"\"\tcomment1\n"
 			"\tkey1 = value1\n" \
 			"\n" \
 			"[section2]\n" \
-			"#\tcomment 2\n"
+			"\"\tcomment 2\n"
 			"\tkey2 = value2\n";
 
 	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
@@ -458,7 +458,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_5()
 	std::string expected_text =
 			"[section1]\n" \
 			"\tkey1 = value1\n" \
-			"#\tcomment 3\n"
+			"\"\tcomment 3\n"
 			"\tkey3 = value3\n" \
 			"\n" \
 			"[section2]\n" \
@@ -498,7 +498,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_6()
 {
 	std::string expected_text =
 			"[section1]\n" \
-			"#\tcomment 3\n"
+			"\"\tcomment 3\n"
 			"\tkey3 = value3\n" \
 			"\n" \
 			"[section2]\n" \
@@ -539,7 +539,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_7()
 	std::string expected_text =
 			"[section1]\n" \
 			"\tkey1 = value1\n" \
-			"#\tcomment3\n"
+			"\"\tcomment3\n"
 			"\tkey3 = value3\n" \
 			"\n" \
 			"[section2]\n" \
@@ -577,7 +577,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_8()
 	std::string expected_text =
 			"[section1]\n" \
 			"\tkey1 = value1\n" \
-			"#\tcomment3\n"
+			"\"\tcomment3\n"
 			"\tkey3 = value3\n" \
 			"\n" \
 			"[section2]\n" \
@@ -700,15 +700,15 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 {
 	std::string expected_text =
 			"[section1]\n"
-			"#	(123)\n"
+			"\"	(123)\n"
 			"	key1 = 0x42F60000\n"
-			"#	(3.141590)\n"
+			"\"	(3.141590)\n"
 			"	key2 = 0x40490FD0\n"
-			"#	(3.141590)\n"
+			"\"	(3.141590)\n"
 			"	key3 = 0x400921F9F01B866E\n"
-			"#	(-3.141590)\n"
+			"\"	(-3.141590)\n"
 			"	key4 = 0xC00921F9F01B866E\n"
-			"#	(-3.141590)\n"
+			"\"	(-3.141590)\n"
 			"	key5 = 0xC0490FD0\n";
 
 	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
@@ -819,7 +819,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_3()
 {
 	std::string expected_text =
 			"[section1]\n" \
-			"#	(x)\n" \
+			"\"	(x)\n" \
 			"	key1 = 0x78\n";
 
 	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
@@ -893,5 +893,277 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_blob_1()
 	};
 
 	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 512,
+				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
+}
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_9()
+{
+	std::string expected_text =
+			"[CPU Temperature]\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max1 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max2 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max3 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max4 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max5 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max6 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max7 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max8 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max9 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max10 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max11 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max12 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max13 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max14 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max15 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max16 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max17 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max18 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max19 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max20 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max21 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max22 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max23 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max24 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max25 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max26 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max27 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max28 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max29 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max30 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max31 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max32 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max33 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max34 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max35 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max36 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max37 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max38 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max39 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max40 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max41 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max42 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max43 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max44 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max45 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max46 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max47 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max48 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max49 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max50 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max51 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max52 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max53 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max54 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max55 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max56 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max57 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max58 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max59 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max60 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max61 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max62 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max63 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max64 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max65 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max66 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max67 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max68 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max69 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max70 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max71 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max72 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max73 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max74 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max75 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max76 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max77 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max78 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max79 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max80 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max81 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max82 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max83 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max84 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max85 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max86 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max87 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max88 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max89 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max90 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max91 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max92 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max93 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max94 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max95 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max96 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max97 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max98 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max99 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max100 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max101 = 0xFFF0000000000000\n" \
+			"\n" \
+			"[global]\n" \
+			"\tcurrent_idx = 93\n" \
+			"\tglobal_writes = 799\n";
+
+	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
+
+		const unsigned MAX_CYCLES = 80;
+		unsigned global_writes = 1;
+
+		const char *SECTION_GLOBAL    = "global";
+		const char *SECTION_CPU_TEMP  = "CPU Temperature";
+
+		const char *KEY_CURRENT_IDX   = "current_idx";
+		const char *KEY_GLOBAL_WRITES = "global_writes";
+		const char *KEY_CPU_MAX       = "CPU_max";
+
+		for( unsigned j = 0; j < 10; ++j ) {
+			for( unsigned i = 0; i < MAX_CYCLES; ++i ) {
+
+				SimpleIni<100> ini( file );
+
+				int32_t current_idx = -1;
+				ini.read( SECTION_GLOBAL, KEY_CURRENT_IDX,   current_idx );
+
+				int32_t global_writes = -1;
+				ini.read( SECTION_GLOBAL, KEY_GLOBAL_WRITES, global_writes );
+
+
+				if( current_idx < 0 ) {
+					current_idx = 0;
+				} else if( current_idx > 100 ) {
+					current_idx = 0;
+				}
+
+				current_idx++;
+				global_writes++;
+
+				std::string key = Tools::format( "%s%d", KEY_CPU_MAX, current_idx );
+				double dval = -1.0/0.0;
+
+				if( !ini.write( SECTION_CPU_TEMP, key, dval ) ) {
+					CPPDEBUG( Tools::format("writing %s failed", key ) );
+					return false;
+				}
+
+				if( !ini.write( SECTION_GLOBAL, KEY_CURRENT_IDX, current_idx  ) ) {
+					CPPDEBUG( Tools::format("writing %s failed", "curent_idx" ) );
+					return false;
+				}
+
+				if( !ini.write( SECTION_GLOBAL, KEY_GLOBAL_WRITES, global_writes  ) ) {
+					CPPDEBUG( Tools::format("writing %s failed", "global_writes" ) );
+					return false;
+				}
+			}
+		}
+
+		return true;
+	};
+
+	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 1024,
 				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
 }
