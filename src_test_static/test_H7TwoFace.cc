@@ -559,3 +559,121 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write_ini1()
 		return true;
 	});
 }
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write4()
+{
+	return std::make_shared<TestCaseH7FuncNoInpMapped>(__FUNCTION__, true, []() {
+
+		auto func = []( char sign ){
+
+			CPPDEBUG( "opening file" );
+
+			auto f = H7TwoFace::open( "2Face.write4", std::ios_base::in | std::ios_base::out );
+
+			if( !f ) {
+				CPPDEBUG( "cannot open file" );
+				return false;
+			}
+
+			{
+				char buffer[500];
+				memset(buffer,sign,sizeof(buffer));
+
+				std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+				if( bytes_written != sizeof(buffer) ) {
+					CPPDEBUG( format( "%d bytes written", bytes_written ) );
+					return false;
+				}
+			}
+
+
+			{
+				char buffer[1000];
+				memset(buffer,sign,sizeof(buffer));
+
+				std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+				if( bytes_written != sizeof(buffer) ) {
+					CPPDEBUG( format( "%d bytes written", bytes_written ) );
+					return false;
+				}
+			}
+
+			return true;
+		};
+
+		if( !func('X') ) {
+			return false;
+		}
+
+		if( !func('Y') ) {
+			return true;
+		}
+
+		return true;
+	});
+}
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write5()
+{
+	return std::make_shared<TestCaseH7FuncNoInpMapped>(__FUNCTION__, true, []() {
+
+		auto f = H7TwoFace::open( "2Face.write5", std::ios_base::in | std::ios_base::out );
+
+		if( !f ) {
+			CPPDEBUG( "cannot open file" );
+			return false;
+		}
+
+		{
+			char buffer[400];
+			memset(buffer,'x',sizeof(buffer));
+
+			std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+			if( bytes_written != sizeof(buffer) ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		{
+			char buffer[510];
+			memset(buffer,'x',sizeof(buffer));
+
+			std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+			if( bytes_written != sizeof(buffer) ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f->seek(0);
+
+		{
+			char buffer[1000];
+			memset(buffer,'X',sizeof(buffer));
+
+			std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+			if( bytes_written != sizeof(buffer) ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		f->seek(0);
+
+		{
+			char buffer[1000];
+			memset(buffer,'Y',sizeof(buffer));
+
+			std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
+			if( bytes_written != sizeof(buffer) ) {
+				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				return false;
+			}
+		}
+
+		return true;
+	});
+}
