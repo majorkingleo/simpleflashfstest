@@ -567,8 +567,6 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write4()
 
 		auto func = []( char sign ){
 
-			CPPDEBUG( "opening file" );
-
 			auto f = H7TwoFace::open( "2Face.write4", std::ios_base::in | std::ios_base::out );
 
 			if( !f ) {
