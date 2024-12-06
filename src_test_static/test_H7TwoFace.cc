@@ -22,11 +22,8 @@ namespace {
 class TestCaseH7Base : public TestCaseBase<bool>
 {
 protected:
-	std::optional<::SimpleFlashFs::SimPc::SimFlashFsFlashMemory> mem1;
-	std::optional<::SimpleFlashFs::SimPc::SimFlashFsFlashMemory> mem2;
-
-	std::optional<::SimpleFlashFs::SimPc::SimSTM32InternalFlashPc> mem_mapped1;
-	std::optional<::SimpleFlashFs::SimPc::SimSTM32InternalFlashPc> mem_mapped2;
+	std::optional<::SimpleFlashFs::SimPc::SimSTM32InternalFlashPc> mem1;
+	std::optional<::SimpleFlashFs::SimPc::SimSTM32InternalFlashPc> mem2;
 
 	std::string file_name;
 	std::string file1;
@@ -54,8 +51,8 @@ public:
 		clear( file1 );
 		clear( file2 );
 
-		mem1.emplace(file1,SFF_MAX_SIZE);
-		mem2.emplace(file2,SFF_MAX_SIZE);
+		mem1.emplace(file1,SFF_MAX_SIZE,false);
+		mem2.emplace(file2,SFF_MAX_SIZE,false);
 		H7TwoFace::set_memory_interface(&mem1.value(),&mem2.value());
 	}
 
@@ -71,15 +68,15 @@ public:
 		clear( file1 );
 		clear( file2 );
 
-		mem_mapped1.emplace(file1,SFF_MAX_SIZE);
-		mem_mapped2.emplace(file2,SFF_MAX_SIZE);
-		H7TwoFace::set_memory_interface(&mem_mapped1.value(),&mem_mapped2.value());
+		mem1.emplace(file1,SFF_MAX_SIZE,true);
+		mem2.emplace(file2,SFF_MAX_SIZE,true);
+		H7TwoFace::set_memory_interface(&mem1.value(),&mem2.value());
 	}
 
 	void deinit_mapped() {
 		H7TwoFace::set_memory_interface(nullptr,nullptr);
-		mem_mapped1.reset();
-		mem_mapped2.reset();
+		mem1.reset();
+		mem2.reset();
 	}
 
 protected:
