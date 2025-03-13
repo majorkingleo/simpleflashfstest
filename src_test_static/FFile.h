@@ -34,9 +34,11 @@ public:
 		file.clear();
 		if( debug ) {
 			std::string s( std::string_view( reinterpret_cast<const char*>(data), size ) );
+			std::size_t size = s.size();
 			s = Tools::substitude( s,  "\n", "\\n" );
+			s = Tools::substitude( s,  "\t", "\\t" );
 			s = Tools::substitude( s,  std::string(1,'\0'), "\\0" );
-			CPPDEBUG( Tools::format( "%s: writing '%s' at pos: %d", name, s, file.tellg() ) );
+			CPPDEBUG( Tools::format( "%s: writing '%s'{%d} at pos: %d", name, s, size, file.tellg() ) );
 		}
 
 		file.write( reinterpret_cast<const char*>(data), size );

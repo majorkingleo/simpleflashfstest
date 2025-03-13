@@ -1167,3 +1167,72 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_9()
 	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 1024,
 				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
 }
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_10()
+{
+	std::string expected_text =
+			"[config]\n" \
+			"\tSimEnabled = 1\n" \
+			"\tCleanser1Enabled = 1\n" \
+			"\tCleanser2Enabled = 1\n" \
+			"\tMeasurementCells = 1\n";
+
+	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
+
+		{
+			SimpleIni ini( file );
+
+			if( !ini.write( "config", "SimEnabled", 0 ) ) {
+				CPPDEBUG( "writing key SimEnabled failed" );
+				return false;
+			}
+
+			if( !ini.write( "config", "Cleanser1Enabled", 1 ) ) {
+				CPPDEBUG( "writing key Cleanser1Enabled failed" );
+				return false;
+			}
+
+			if( !ini.write( "config", "Cleanser2Enabled", 1 ) ) {
+				CPPDEBUG( "writing key Cleanser2Enabled failed" );
+				return false;
+			}
+
+			if( !ini.write( "config", "MeasurementCells", 1 ) ) {
+				CPPDEBUG( "writing key MeasurementCells failed" );
+				return false;
+			}
+
+		}
+
+		{
+			SimpleIni ini( file );
+
+			if( !ini.write( "config", "SimEnabled", 1 ) ) {
+				CPPDEBUG( "writing key SimEnabled failed" );
+				return false;
+			}
+
+			if( !ini.write( "config", "Cleanser1Enabled", 1 ) ) {
+				CPPDEBUG( "writing key Cleanser1Enabled failed" );
+				return false;
+			}
+
+
+			if( !ini.write( "config", "Cleanser2Enabled", 1 ) ) {
+				CPPDEBUG( "writing key Cleanser2Enabled failed" );
+				return false;
+			}
+
+			if( !ini.write( "config", "MeasurementCells", 1 ) ) {
+				CPPDEBUG( "writing key MeasurementCells failed" );
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 512,
+				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
+}

@@ -134,6 +134,7 @@ int main( int argc, char **argv )
 		test_cases.push_back( test_case_simple_ini_write_7() );
 		test_cases.push_back( test_case_simple_ini_write_8() );
 		test_cases.push_back( test_case_simple_ini_write_9() );
+		test_cases.push_back( test_case_simple_ini_write_10() );
 
 		test_cases.push_back( test_case_static_TwoFace_write_ini1() );
 
