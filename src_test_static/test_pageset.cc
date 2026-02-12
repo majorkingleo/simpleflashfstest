@@ -229,3 +229,29 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset9()
 		return ps.empty();
 	});
 }
+
+std::shared_ptr<TestCaseBase<bool>> test_case_pageset10()
+{
+	return std::make_shared<TestCaseFuncNoInp>(__FUNCTION__, true, []() {
+
+		PageSet<ConfigStatic> ps;
+
+		const std::initializer_list<uint32_t> il_unordered = { 62, 64, 52, 53, 54, 55, 56, 58, 60, 61, 63 };
+
+		ps.unordered_insert( il_unordered.begin(), il_unordered.end() );
+
+		ps.erase(57);
+		ps.erase(64);
+		ps.erase(62);
+		ps.erase(3);
+
+		for( auto & value : ps.get_data() ) {
+			if( PageSet<ConfigStatic>::NO_DATA == value ) {
+				CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+				return false;
+			}
+		}		
+
+		return true;
+	});
+}

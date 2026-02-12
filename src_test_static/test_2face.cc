@@ -91,6 +91,7 @@ int main( int argc, char **argv )
 		test_cases.push_back( test_case_pageset7() );
 		test_cases.push_back( test_case_pageset8() );
 		test_cases.push_back( test_case_pageset9() );
+		test_cases.push_back( test_case_pageset10() );
 
 		test_cases.push_back( test_case_static_TwoFace_open_speacial1() );
 
