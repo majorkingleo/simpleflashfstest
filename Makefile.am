@@ -2,7 +2,8 @@ bin_PROGRAMS=\
 	simple_flash_fs_tar \
 	test_dynamic \
 	test_static \
-	test_2face
+	test_2face \
+	two_drives_dynamic
 		
 simple_flash_fs_tar_SOURCES=\
 		simpleflashfs/src_simple_flash_fs_tar/main.cc \
@@ -51,7 +52,14 @@ test_2face_SOURCES=\
 		src_test_static/test_SimpleIni.h \
 		src_test_static/test_SimpleIni.cc \
 		src_test_static/FFile.h \
-		tools_config.h				
+		tools_config.h		
+
+two_drives_dynamic_SOURCES=\
+		simpleflashfs/src_vfs/main.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h \
+		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsVfs.h
+		
 
 AM_CPPFLAGS = \
 	-I$(top_srcdir)/cpputils/cpputilsshared  \
@@ -63,7 +71,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)/simpleflashfs/src/static \
 	-I$(top_srcdir)/simpleflashfs/src/sim_pc \
 	-I$(top_srcdir)/simpleflashfs/src/crc \
-	-std=gnu++20 \
+	-std=gnu++23 \
 	-D_GLIBCXX_USE_CXX11_ABI=1 \
 	-D_XOPEN_SOURCE=700 # for cyggwin fileno() \
 	-fstack-protector
