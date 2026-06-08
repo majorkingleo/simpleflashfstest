@@ -39,8 +39,8 @@ namespace {
 
 		bool run() override {
 
-			std::string file_name_fstream          = format( ".%s.fstream.txt", name );
-			std::string file_name_buffered_fstream = format( ".%s.buffered_fstream.txt", name );
+			std::string file_name_fstream          = Tools::format( ".%s.fstream.txt", name );
+			std::string file_name_buffered_fstream = Tools::format( ".%s.buffered_fstream.txt", name );
 			std::vector<std::byte> buffer(buffer_size);
 			std::span<std::byte> sbuffer(buffer);
 
@@ -51,14 +51,14 @@ namespace {
 				FFile f_fstream_a( file_name_fstream, openmode );
 
 				if( !f_fstream_a ) {
-					CPPDEBUG( format( "cannot open file: '%s'", f_fstream_a.get_file_name() ) );
+					CPPDEBUG( Tools::format( "cannot open file: '%s'", f_fstream_a.get_file_name() ) );
 					return false;
 				}
 
 				FFile f_fstream_b( file_name_buffered_fstream, openmode );
 
 				if( !f_fstream_b ) {
-					CPPDEBUG( format( "cannot open file: '%s'", f_fstream_b.get_file_name() ) );
+					CPPDEBUG( Tools::format( "cannot open file: '%s'", f_fstream_b.get_file_name() ) );
 					return false;
 				}
 
@@ -71,18 +71,18 @@ namespace {
 
 			std::string s1;
 			if( !XML::read_file(file_name_fstream,s1) ) {
-				CPPDEBUG( format( "cannot read file: '%s'", file_name_fstream ) );
+				CPPDEBUG( Tools::format( "cannot read file: '%s'", file_name_fstream ) );
 				return false;
 			}
 
 			std::string s2;
 			if( !XML::read_file(file_name_buffered_fstream,s2) ) {
-				CPPDEBUG( format( "cannot read file: '%s'", file_name_buffered_fstream ) );
+				CPPDEBUG( Tools::format( "cannot read file: '%s'", file_name_buffered_fstream ) );
 				return false;
 			}
 
 			if( s1 != s2 ) {
-				CPPDEBUG( "content differs" );
+				CPPDEBUG( Tools::format( "content differs" ) );
 				return false;
 			}
 
@@ -243,7 +243,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_filebuffer_7()
 		std::string s = r( 9 );
 
 		if( s != "222222222" ) {
-			CPPDEBUG( format( "s: '%s", s ) );
+			CPPDEBUG( Tools::format( "s: '%s", s ) );
 			throw std::out_of_range("invalid read");
 		}
 
@@ -280,7 +280,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_filebuffer_8()
 		std::string s = r( 9 );
 
 		if( s != "222222222" ) {
-			CPPDEBUG( format( "s: '%s", s ) );
+			CPPDEBUG( Tools::format( "s: '%s", s ) );
 			throw std::out_of_range("invalid read");
 		}
 
@@ -350,10 +350,10 @@ std::shared_ptr<TestCaseBase<bool>> test_case_filebuffer_11()
 		while( !file.eof() ) {
 			auto s = file.get_line<static_string<50>>();
 			if( s ) {
-				CPPDEBUG( format( "got line: '%s'", *s ) );
+				CPPDEBUG( Tools::format( "got line: '%s'", *s ) );
 				erg.push_back( std::string( *s ) );
 			} else {
-				CPPDEBUG( "no data" );
+				CPPDEBUG( Tools::format( "no data" ) );
 			}
 		}
 

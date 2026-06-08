@@ -83,7 +83,7 @@ protected:
 	void clear( const std::string_view & file ) {
 		if( std::filesystem::exists( file ) ) {
 			if( !std::filesystem::remove( file ) ) {
-				throw STDERR_EXCEPTION( format( "cannot delete %s", file ) );
+				throw STDERR_EXCEPTION( Tools::format( "cannot delete %s", file ) );
 			}
 		}
 	};
@@ -170,7 +170,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_TwoFace_write1()
 
 		std::size_t bytes_written = f->write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
 		if( bytes_written != sizeof(buffer) ) {
-			CPPDEBUG( format( "%d bytes written", bytes_written ) );
+			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return false;
 		}
 

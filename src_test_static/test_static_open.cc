@@ -44,7 +44,7 @@ public:
 	{
 		if( std::filesystem::exists( file_name ) ) {
 			if( !std::filesystem::remove( file_name ) ) {
-				throw STDERR_EXCEPTION( format( "cannot delete %s", file_name ) );
+				throw STDERR_EXCEPTION( Tools::format( "cannot delete %s", file_name ) );
 			}
 		}
 
@@ -52,9 +52,9 @@ public:
 		fs.emplace(&mem.value());
 
 		if( !fs->init() ) {
-			CPPDEBUG( format( "recreating fs %s", file_name ) );
+			CPPDEBUG( Tools::format( "recreating fs %s", file_name ) );
 			if( !fs->create() ) {
-				throw STDERR_EXCEPTION( format( "cannot create %s", file_name ) );
+				throw STDERR_EXCEPTION( Tools::format( "cannot create %s", file_name ) );
 			}
 		}
 	}
@@ -227,7 +227,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write1()
 
 		std::size_t bytes_written = f.write( reinterpret_cast<std::byte*>(buffer), sizeof(buffer) );
 		if( bytes_written != sizeof(buffer) ) {
-			CPPDEBUG( format( "%d bytes written", bytes_written ) );
+			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return false;
 		}
 
@@ -251,7 +251,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 		{
 			std::size_t bytes_written = f.write( v_inside_the_inode.data(), v_inside_the_inode.size() );
 			if( bytes_written != v_inside_the_inode.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
@@ -263,7 +263,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 		{
 			std::size_t bytes_written = f.write( v_on_data_page.data(), v_on_data_page.size() );
 			if( bytes_written != v_on_data_page.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
@@ -271,7 +271,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 		f.flush();
 
 		if( f.file_size() != block_a_size * 2 ) {
-			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			CPPDEBUG( Tools::format( "invalid file size: %d", f.file_size() ));
 			return false;
 		}
 
@@ -282,12 +282,12 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
 
 			if( read_len != v_read1.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
 			if( v_read1 != v_inside_the_inode ) {
-				CPPDEBUG( "invalid data" );
+				CPPDEBUG( Tools::format( "invalid data" ) );
 				return false;
 			}
 		}
@@ -297,7 +297,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write2()
 			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
 
 			if( read_len != v_read2.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -333,7 +333,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 		{
 			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
 			if( bytes_written != v_data.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
@@ -341,7 +341,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 		f.flush();
 
 		if( f.file_size() != block_a_size + 600 ) {
-			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			CPPDEBUG( Tools::format( "invalid file size: %d", f.file_size() ));
 			return false;
 		}
 
@@ -354,7 +354,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
 
 			if( read_len != v_read1.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -369,7 +369,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write3()
 			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
 
 			if( read_len != v_read2.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -402,7 +402,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 		{
 			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
 			if( bytes_written != v_data.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
@@ -410,7 +410,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 		f.flush();
 
 		if( f.file_size() != block_a_size + 200 ) {
-			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			CPPDEBUG( Tools::format( "invalid file size: %d", f.file_size() ));
 			return false;
 		}
 
@@ -423,7 +423,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
 
 			if( read_len != v_read1.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -438,7 +438,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_write4()
 			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
 
 			if( read_len != v_read2.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -471,13 +471,13 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read1()
 		{
 			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
 			if( bytes_written != v_data.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
 
 		if( f.file_size() != block_a_size + 200 ) {
-			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			CPPDEBUG( Tools::format( "invalid file size: %d", f.file_size() ));
 			return false;
 		}
 
@@ -490,7 +490,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read1()
 			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
 
 			if( read_len != v_read1.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
@@ -505,12 +505,12 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read1()
 			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
 
 			if( read_len != v_read2.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
 			if( v_read2 != v_data ) {
-				CPPDEBUG( "invalid data" );
+				CPPDEBUG( Tools::format( "invalid data" ) );
 				return false;
 			}
 		}
@@ -538,13 +538,13 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read2()
 		{
 			std::size_t bytes_written = f.write( v_data.data(), v_data.size() );
 			if( bytes_written != v_data.size() ) {
-				CPPDEBUG( format( "%d bytes written", bytes_written ) );
+				CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 				return false;
 			}
 		}
 
 		if( f.file_size() != block_a_size + 600 ) {
-			CPPDEBUG( format( "invalid file size: %d", f.file_size() ));
+			CPPDEBUG( Tools::format( "invalid file size: %d", f.file_size() ));
 			return false;
 		}
 
@@ -557,12 +557,12 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read2()
 			std::size_t read_len = f.read( v_read1.data(), v_read1.size() );
 
 			if( read_len != v_read1.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
 			if( v_read1 != v_read_cmp ) {
-				CPPDEBUG( format( "invalid data: 0x%X", (unsigned)v_read1[0] ) );
+				CPPDEBUG( Tools::format( "invalid data: 0x%X", (unsigned)v_read1[0] ) );
 				return false;
 			}
 		}
@@ -572,12 +572,12 @@ std::shared_ptr<TestCaseBase<bool>> test_case_static_read2()
 			std::size_t read_len = f.read( v_read2.data(), v_read2.size() );
 
 			if( read_len != v_read2.size() ) {
-				CPPDEBUG( format( "%d bytes read", read_len ) );
+				CPPDEBUG( Tools::format( "%d bytes read", read_len ) );
 				return false;
 			}
 
 			if( v_read2 != v_data ) {
-				CPPDEBUG( "invalid data" );
+				CPPDEBUG( Tools::format( "invalid data" ) );
 				return false;
 			}
 		}

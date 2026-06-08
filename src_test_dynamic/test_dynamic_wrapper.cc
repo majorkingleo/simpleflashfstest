@@ -63,7 +63,7 @@ public:
 		instance_handler.register_instance(instance_name, fs );
 
 		if( !fs->create(fs->create_default_header(page_size, size/page_size)) ) {
-			throw STDERR_EXCEPTION( format( "cannot create %s", file ) );
+			throw STDERR_EXCEPTION( Tools::format( "cannot create %s", file ) );
 		}
 
 		//CPPDEBUG( format( "registering instance: '%s'", instance_name));
@@ -197,7 +197,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_wrapper_fwrite1()
 
 		std::size_t bytes_written = fwrite( buffer, 1, sizeof(buffer), f );
 		if( bytes_written != sizeof(buffer) ) {
-			CPPDEBUG( format( "%d bytes written", bytes_written ) );
+			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return false;
 		}
 
@@ -218,7 +218,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_wrapper_fwrite2()
 
 		std::size_t bytes_written = fwrite( buffer, 1, sizeof(buffer), f );
 		if( bytes_written != sizeof(buffer) ) {
-			CPPDEBUG( format( "%d bytes written", bytes_written ) );
+			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return false;
 		}
 
@@ -242,7 +242,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_wrapper_fwrite3()
 
 		std::size_t bytes_written = fwrite( buffer.data(), 1, buffer.size(), f );
 		if( bytes_written != buffer.size() ) {
-			CPPDEBUG( format( "%d bytes written", bytes_written ) );
+			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return true;
 		}
 

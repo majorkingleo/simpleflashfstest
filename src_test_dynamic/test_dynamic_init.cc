@@ -39,7 +39,7 @@ public:
 		SimpleFlashFs::dynamic::SimpleFlashFs fs(&mem);
 
 		if( !fs.create(fs.create_default_header(page_size, size/page_size)) ) {
-			throw STDERR_EXCEPTION( format( "cannot create %s", file ) );
+			throw STDERR_EXCEPTION( Tools::format( "cannot create %s", file ) );
 		}
 
 		return true;

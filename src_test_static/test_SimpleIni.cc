@@ -74,7 +74,7 @@ public:
 			std::string expected_out_file_name = file_name_buffered_fstream + ".expected.ini";
 			std::ofstream out( expected_out_file_name, std::ios_base::trunc | std::ios_base::out );
 			if( !out ) {
-				CPPDEBUG( format( "cannot open file '%s'", expected_out_file_name ) );
+				CPPDEBUG( Tools::format( "cannot open file '%s'", expected_out_file_name ) );
 				return false;
 			}
 
@@ -125,7 +125,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_1()
 		std::string_view value;
 
 		if( !ini.read("section1","key1", value ) || value != "value1" ) {
-			CPPDEBUG( format( "value: %d", value ) );
+			CPPDEBUG( Tools::format( "value: %d", value ) );
 			CPPDEBUG( "section1/key1 not found" );
 			return false;
 		}
@@ -141,27 +141,27 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_1()
 		}
 
 		if( !ini.read("section2","key1", value ) || value != "value1" ) {
-			CPPDEBUG( format( "section2/key1 not found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section2/key1 not found (value:'%s')", value ) );
 			return false;
 		}
 
 		if( !ini.read("section2","key2", value ) || value != "value2" ) {
-			CPPDEBUG( format( "section2/key2 not found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section2/key2 not found (value:'%s')", value ) );
 			return false;
 		}
 
 		if( !ini.read("section3","key3", value ) || value != "value3" ) {
-			CPPDEBUG( "section3/key3 not found" );
+			CPPDEBUG( Tools::format( "section3/key3 not found (value:'%s')", value ) );
 			return false;
 		}
 
 		if( !ini.read("section3","key4", value ) || value != "value4" ) {
-			CPPDEBUG( "section3/key4 not found" );
+			CPPDEBUG( Tools::format( "section3/key4 not found (value:'%s')", value ) );
 			return false;
 		}
 
 		if( !ini.read("section4","key1", value ) || value != "nolineend" ) {
-			CPPDEBUG( "section4/key1 not found" );
+			CPPDEBUG( Tools::format( "section4/key1 not found (value:'%s')", value ) );
 			return false;
 		}
 
@@ -198,7 +198,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_2()
 		std::string_view value;
 
 		if( !ini.read("section4","key1", value ) || value != "nolineend" ) {
-			CPPDEBUG( format( "section4/key1 not found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section4/key1 not found (value:'%s')", value ) );
 			return false;
 		}
 		return true;
@@ -235,7 +235,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_3()
 		std::string_view value;
 
 		if( !ini.read("section4","key1", value ) || value != "" ) {
-			CPPDEBUG( format( "section4/key1 not found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section4/key1 not found (value:'%s')", value ) );
 			return false;
 		}
 		return true;
@@ -273,7 +273,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_4()
 		std::string_view value;
 
 		if( ini.read("section4","key1", value ) ) {
-			CPPDEBUG( format( "section4/key1 found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section4/key1 found (value:'%s')", value ) );
 			return false;
 		}
 		return true;
@@ -310,7 +310,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_5()
 		std::string_view value;
 
 		if( ini.read("section4","key1", value ) ) {
-			CPPDEBUG( format( "section4/key1 found (value:'%s')", value ) );
+			CPPDEBUG( Tools::format( "section4/key1 found (value:'%s')", value ) );
 			return false;
 		}
 		return true;
@@ -749,7 +749,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 			}
 
 			if( f != 123.0f ) {
-				CPPDEBUG( format( "key1: invalid value: %f != %f", f, 123.0f ) );
+				CPPDEBUG( Tools::format( "key1: invalid value: %f != %f", f, 123.0f ) );
 				return false;
 			}
 		}
@@ -762,7 +762,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 			}
 
 			if( f != 3.14159f  ) {
-				CPPDEBUG( format( "key2: invalid value: %f != %f", f, 3.14159f ) );
+				CPPDEBUG( Tools::format( "key2: invalid value: %f != %f", f, 3.14159f ) );
 				return false;
 			}
 		}
@@ -775,7 +775,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 			}
 
 			if( f != 3.14159  ) {
-				CPPDEBUG( format( "key3: invalid value: %f != %f", f, 3.14159 ) );
+				CPPDEBUG( Tools::format( "key3: invalid value: %f != %f", f, 3.14159 ) );
 				return false;
 			}
 		}
@@ -788,7 +788,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 			}
 
 			if( f != -3.14159  ) {
-				CPPDEBUG( format( "key4: invalid value: %f != %f", f, -3.14159 ) );
+				CPPDEBUG( Tools::format( "key4: invalid value: %f != %f", f, -3.14159 ) );
 				return false;
 			}
 		}
@@ -801,7 +801,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_2()
 			}
 
 			if( f != -3.14159f  ) {
-				CPPDEBUG( format( "key5: invalid value: %f != %f", f, -3.14159f ) );
+				CPPDEBUG( Tools::format( "key5: invalid value: %f != %f", f, -3.14159f ) );
 				return false;
 			}
 		}
@@ -840,7 +840,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_value_3()
 			}
 
 			if( c != 'x'  ) {
-				CPPDEBUG( format( "key1: invalid value: %c != %c", c, 'x' ) );
+				CPPDEBUG( Tools::format( "key1: invalid value: %c != %c", c, 'x' ) );
 				return false;
 			}
 		}
@@ -884,7 +884,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_read_blob_1()
 
 			std::string_view sv_blob( v.data() );
 			if( sv_blob != test ) {
-				CPPDEBUG( format( "key1 '%s' != '%s'", sv_blob, test ) );
+				CPPDEBUG( Tools::format( "key1 '%s' != '%s'", sv_blob, test ) );
 				return false;
 			}
 		}

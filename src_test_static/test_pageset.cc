@@ -61,7 +61,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset1()
 		ps.insert(2);
 		ps.insert(6);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == std::vector<uint32_t>( il );
 	});
@@ -78,7 +78,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset2()
 
 		ps.unordered_insert( il_unordered.begin(), il_unordered.end() );
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == std::vector<uint32_t>( il );
 		return true;
@@ -98,7 +98,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset3()
 		ps.unordered_insert(6);
 
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == std::vector<uint32_t>( il );
 	});
@@ -116,7 +116,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset4()
 
 		ps.erase(5);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == std::vector<uint32_t>( il );
 	});
@@ -135,7 +135,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset5()
 		ps.erase(5);
 		ps.insert(4);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == static_vector_20<uint32_t>( il );
 	});
@@ -154,7 +154,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset6()
 		ps.erase(5);
 		ps.insert(7);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == static_vector_20<uint32_t>( il );
 	});
@@ -175,7 +175,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset7()
 		ps.insert(0);
 		ps.insert(PageSet<ConfigStatic>::NO_DATA);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == static_vector_20<uint32_t>( il );
 	});
@@ -200,10 +200,10 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset8()
 		ps.erase(7);
 
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 		ps.sort();
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return to_vec(ps) == static_vector_20<uint32_t>( il );
 	});
@@ -224,7 +224,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset9()
 		ps.erase(6);
 		ps.erase(2);
 
-		CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+		CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 
 		return ps.empty();
 	});
@@ -247,7 +247,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_pageset10()
 
 		for( auto & value : ps.get_data() ) {
 			if( PageSet<ConfigStatic>::NO_DATA == value ) {
-				CPPDEBUG( format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
+				CPPDEBUG( Tools::format( "%s", IterableToCommaSeparatedString(ps.get_data())) );
 				return false;
 			}
 		}		

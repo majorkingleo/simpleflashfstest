@@ -110,9 +110,9 @@ int main( int argc, char **argv )
 				}
 			}
 
-			CPPDEBUG( format( "run test: %s", test->getName() ) );
+			CPPDEBUG( Tools::format( "run test: %s", test->getName() ) );
 
-			col.addColData( COL_IDX, format( "% 2d", idx ) );
+			col.addColData( COL_IDX, Tools::format( "% 2d", idx ) );
 			col.addColData( COL_NAME, test->getName() );
 
 			std::string result;
