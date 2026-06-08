@@ -9,6 +9,7 @@
             "problemMatcher": ["$gcc"],
             "options": { 
                 "args": ["-j12"]
+            }
         }
     ]
 }
