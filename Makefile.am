@@ -58,7 +58,13 @@ two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/main.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h \
 		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.cc \
-		simpleflashfs/src_vfs/SimpleFlashFsVfs.h
+		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
+		simpleflashfs/src_vfs/FramFsImplDetail.h \
+		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/CommandParser.h \
+		simpleflashfs/src_vfs/CommandParser.cc \
+		simpleflashfs/src_vfs/FilesystemCommands.h \
+		simpleflashfs/src_vfs/FilesystemCommands.cc
 		
 
 AM_CPPFLAGS = \
@@ -214,6 +220,13 @@ test_2face_LDADD = \
 	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a			 
 		 
+two_drives_dynamic_LDADD = \
+	src/libSimpleFlashFs.a \
+	cpputils/io/libcpputilsio.a \
+	cpputils/cpputilsshared/libcpputilsshared.a \
+	common/libcommon.a \
+	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
+
 LIBS=
     
 AM_LDFLAGS=
