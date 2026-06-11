@@ -15,6 +15,8 @@ test_dynamic_SOURCES=\
 		src_test_dynamic/test_dynamic_init.cc \
 		src_test_dynamic/test_dynamic_wrapper.h \
 		src_test_dynamic/test_dynamic_wrapper.cc \
+		src_test_dynamic/test_dynamic_direct.h \
+		src_test_dynamic/test_dynamic_direct.cc \
 		tools_config.h		
 		
 test_static_SOURCES=\
