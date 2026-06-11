@@ -13,6 +13,7 @@
 #define fclose( file ) SimpleFlashFs_dynamic_fclose( file)
 #define fwrite( ptr, size, nmemb, stream ) SimpleFlashFs_dynamic_fwrite( ptr, size, nmemb, stream )
 #define fread( ptr, size, nmemb, stream ) SimpleFlashFs_dynamic_fread( ptr, size, nmemb, stream )
+#define fgets( s, size, stream ) SimpleFlashFs_dynamic_fgets( s, size, stream )
 #define FILE SIMPLE_FLASH_FS_DYNAMIC_FILE
 
 using namespace Tools;
@@ -220,6 +221,66 @@ std::shared_ptr<TestCaseBase<bool>> test_case_wrapper_fwrite2()
 		if( bytes_written != sizeof(buffer) ) {
 			CPPDEBUG( Tools::format( "%d bytes written", bytes_written ) );
 			return false;
+		}
+
+		fclose( f );
+		return true;
+	});
+}
+
+// write numbers 1 to 74, each on its own line, using repeated open/append/close
+// verifies that each number is stored with a trailing newline (cat output must not merge lines)
+std::shared_ptr<TestCaseBase<bool>> test_case_wrapper_fwrite4()
+{
+	return std::make_shared<TestCaseWrapperFunc>("fwrite4", []() {
+		const char *filename = "count";
+		const uint32_t max_val = 74;
+
+		for( uint32_t i = 1; i <= max_val; i++ ) {
+			std::string content = std::to_string(i) + "\n";
+
+			FILE *f = fopen( filename, "a" );
+			if( f == nullptr ) {
+				CPPDEBUG( Tools::format( "cannot open '%s' for append at i=%d", filename, i ) );
+				return false;
+			}
+
+			std::size_t bytes_written = fwrite( content.c_str(), 1, content.size(), f );
+			if( bytes_written != content.size() ) {
+				CPPDEBUG( Tools::format( "fwrite returned %d, expected %d at i=%d", bytes_written, content.size(), i ) );
+				fclose( f );
+				return false;
+			}
+
+			if( fclose( f ) != 0 ) {
+				CPPDEBUG( Tools::format( "fclose failed at i=%d", i ) );
+				return false;
+			}
+		}
+
+		// Now read back and verify every line
+		FILE *f = fopen( filename, "r+" );
+		if( f == nullptr ) {
+			CPPDEBUG( "cannot open file for reading" );
+			return false;
+		}
+
+		for( uint32_t i = 1; i <= max_val; i++ ) {
+			char buf[32] = {};
+			char *line = fgets( buf, sizeof(buf), f );
+			if( line == nullptr ) {
+				CPPDEBUG( Tools::format( "fgets returned nullptr at i=%d", i ) );
+				fclose( f );
+				return false;
+			}
+
+			std::string expected = std::to_string(i) + "\n";
+			if( std::string(buf) != expected ) {
+				CPPDEBUG( Tools::format( "line mismatch at i=%d: got '%s' expected '%s'",
+					i, std::string(buf).c_str(), expected.c_str() ) );
+				fclose( f );
+				return false;
+			}
 		}
 
 		fclose( f );

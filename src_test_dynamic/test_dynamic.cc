@@ -81,6 +81,7 @@ int main( int argc, char **argv )
 
 		test_cases.push_back( test_case_wrapper_fwrite2() );
 		test_cases.push_back( test_case_wrapper_fwrite3() );
+		test_cases.push_back( test_case_wrapper_fwrite4() );
 
 		ColBuilder col;
 
