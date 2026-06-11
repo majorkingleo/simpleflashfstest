@@ -64,7 +64,9 @@ two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/CommandParser.h \
 		simpleflashfs/src_vfs/CommandParser.cc \
 		simpleflashfs/src_vfs/FilesystemCommands.h \
-		simpleflashfs/src_vfs/FilesystemCommands.cc
+		simpleflashfs/src_vfs/FilesystemCommands.cc \
+		simpleflashfs/src_vfs/TestCommands.h \
+		simpleflashfs/src_vfs/TestCommands.cc
 		
 
 AM_CPPFLAGS = \
