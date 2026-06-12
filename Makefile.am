@@ -29,9 +29,12 @@ test_static_SOURCES=\
 		src_test_static/test_static_open.cc \
 		src_test_static/test_static_2pages.h \
 		src_test_static/test_static_2pages.cc \
+		src_test_static/test_static_truncate.h \
+		src_test_static/test_static_truncate.cc \
 		simpleflashfs/src_2face/H7TwoFace.h \
 		simpleflashfs/src_2face/H7TwoFaceConfig.h \
 		simpleflashfs/src_2face/H7TwoFace.cc \
+		simpleflashfs/src_simple_flash_fs_tar/SimpleFlashFsDynamicReadOnly.h \
 		tools_config.h
 		
 test_2face_SOURCES=\
@@ -47,6 +50,8 @@ test_2face_SOURCES=\
 		src_test_static/test_2face.cc \
 		src_test_static/test_H7TwoFace.h \
 		src_test_static/test_H7TwoFace.cc \
+		src_test_static/test_H7TwoFace_truncate.h \
+		src_test_static/test_H7TwoFace_truncate.cc \
 		src_test_static/test_pageset.h \
 		src_test_static/test_pageset.cc \
 		src_test_static/test_FileBuffer.cc \
@@ -54,6 +59,7 @@ test_2face_SOURCES=\
 		src_test_static/test_SimpleIni.h \
 		src_test_static/test_SimpleIni.cc \
 		src_test_static/FFile.h \
+		simpleflashfs/src_simple_flash_fs_tar/SimpleFlashFsDynamicReadOnly.h \
 		tools_config.h		
 
 two_drives_dynamic_SOURCES=\
@@ -211,14 +217,14 @@ test_dynamic_LDADD = \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 	
 test_static_LDADD = \
-	src/libSimpleFlashFsStatic.a \
+	src/libSimpleFlashFs.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
 	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a	
 		 
 test_2face_LDADD = \
-	src/libSimpleFlashFsStatic.a \
+	src/libSimpleFlashFs.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
 	common/libcommon.a \
