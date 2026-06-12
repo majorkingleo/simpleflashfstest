@@ -4,5 +4,7 @@
         "**/*.a": true,
         "**/*.dirstamp": true,
         "**/.deps": true,
+        "**/.*": true,
+        "**/*~": true
     }
 }
