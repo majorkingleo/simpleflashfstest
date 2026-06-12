@@ -640,34 +640,28 @@ std::shared_ptr<TestCaseBase<bool>> test_case_vfs_test1_full_flow()
 }
 
 // ---------------------------------------------------------------------------
-// Two threads, same drive, no locking.
+// Two threads, same drive, two DIFFERENT files, opened from each thread.
 //
 // Spawns two writer threads that each open() / write() / close() their
 // own file on drive a: in a tight loop. Both threads go through the
-// SAME FramFsImplDetail (one fs instance, one mem simulator). Only
-// SimpleFlashFsThreadedVfsServer::open() and the per-handle
-// ThreadedFileHandle have mutexes - the underlying SimpleFlashFs::write
-// and the fstream-based SimFlashFsFlashMemory have no mutual exclusion.
+// SAME FramFsImplDetail (one fs instance, one mem simulator).
 //
-// As a result, the threads race on:
-//   - free_data_pages set
-//   - max_inode_number / allocated_unwritten_pages
-//   - the fstream seek/write/read inside the simulator
-//   - inode COW page allocation
+// Originally this test was registered with expected_result=false to
+// DOCUMENT the missing locking - it "succeeded" while the locking
+// bug was present (races -> result=false matched expected=false).
 //
-// So at least one of the following is expected:
-//   - some writes return short/zero
-//   - one or both files are missing after the run
-//   - the dynamic mount fails (bad magic / bad CRC)
-//   - the file contents do not match what was written
-//   - an exception propagates out of a writer thread
-//
-// The test body returns `true` only if EVERY check passes (no race
-// surfaced). Because the test is registered with expected_result =
-// false, the runner treats "actual == false" as success: the test
-// passes WHILE the locking bug is present. Once per-drive locking is
-// added, the test will start failing - alerting the developer that
-// the expected behavior changed and the expectation should be flipped.
+// After:
+//   * adding fine-grained per-resource mutexes inside
+//     SimpleFlashFsBase (m_inode_meta_mutex / m_free_data_pages_mutex
+//     / m_max_inode_number_mutex / m_mem_mutex),
+//   * fixing the allocated_unwritten_pages leak in
+//     erase_inode_and_unused_pages(),
+//   * fixing the data-page leak by stripping Deleted entries before
+//     serialising the new inode in flush(), and
+//   * giving SimFlashFsFlashMemory an internal mutex (the std::fstream
+//     simulator is fundamentally not thread-safe),
+// this scenario now produces correct, byte-exact concatenated output
+// on disk - so the expectation flips to true.
 // ---------------------------------------------------------------------------
 std::shared_ptr<TestCaseBase<bool>>
 test_case_vfs_two_threads_same_drive_no_lock()
@@ -676,12 +670,8 @@ test_case_vfs_two_threads_same_drive_no_lock()
 		__FUNCTION__,
 		[]( VfsFixture & fix ) {
 			if( !format_both( fix ) ) {
-				// If format itself failed we cannot even start; report
-				// `true` (no observable race) which will mis-match the
-				// expected `false` and surface this as a real failure
-				// instead of silently masking it.
 				CPPDEBUG( "two-thread: pre-flight format failed" );
-				return true;
+				return false;
 			}
 
 			constexpr int N = 200;
@@ -785,12 +775,172 @@ test_case_vfs_two_threads_same_drive_no_lock()
 				return false;
 			}
 
-			// Every check passed - somehow no race surfaced this run.
-			// Returning true while expected_result is false will mark
-			// the test as FAILED, which is the desired behavior the
-			// moment proper locking is in place.
+			// All checks passed - both files have the exact expected
+			// contents. With the locking and FS fixes in place this
+			// is now the normal outcome, so expected_result == true.
 			return true;
 		},
-		/* expected_result */ false );
+		/* expected_result */ true );
+}
+
+// ---------------------------------------------------------------------------
+// Two threads, SAME drive, SAME file, opened twice (open-file-table proof).
+//
+// Each thread opens "/a/shared" exactly ONCE and keeps its handle
+// alive for the whole loop. Because both opens are simultaneously
+// live, SimpleFlashFsThreadedVfsServer's open-file table returns
+// ThreadedFileHandles that share ONE underlying drive file handle
+// (one OpenFile). Every read / write / flush is serialised by the
+// per-OpenFile mutex, and every append-write does an explicit seek
+// to the current file_size INSIDE the locked region. So the on-disk
+// file is the byte-exact concatenation of all writes in some
+// thread-interleaving order.
+//
+// Each line is fixed-width "AAAAA"/"BBBBB" (5 bytes including the
+// trailing newline) so we can validate the line count, the line
+// integrity (no torn / interleaved bytes), and the total size.
+//
+// Registered with expected_result = true: this test PROVES the
+// open-file table works. N is intentionally modest because every
+// flush() does a COW on an inode page on the small (32 KB) Drive A.
+// ---------------------------------------------------------------------------
+std::shared_ptr<TestCaseBase<bool>>
+test_case_vfs_two_threads_same_file_open_twice()
+{
+	return std::make_shared<TestCaseVfs>(
+		__FUNCTION__,
+		[]( VfsFixture & fix ) {
+			if( !format_both( fix ) ) {
+				CPPDEBUG( "open-twice: format failed" );
+				return false;
+			}
+
+			constexpr int N = 50;
+
+			std::atomic<int>  errors_a     {0};
+			std::atomic<int>  errors_b     {0};
+			std::atomic<bool> writer_threw {false};
+			std::atomic<int>  ready        {0};
+
+			auto writer = [&]( char tag, std::atomic<int> & errors ) {
+				auto h = fix.vfs->open(
+					"/a/shared",
+					std::ios::out | std::ios::app );
+				if( !h || !h->valid() ) {
+					errors += N;
+					ready++;
+					return;
+				}
+
+				// Wait until the SIBLING thread has also opened the
+				// file before either of us starts writing - that
+				// way the open-file table is provably shared while
+				// both writers are active.
+				ready++;
+				while( ready.load() < 2 ) {
+					std::this_thread::yield();
+				}
+
+				for( int i = 0; i < N; i++ ) {
+					try {
+						char buf[6] = { tag, tag, tag, tag, '\n', 0 };
+						auto * data = reinterpret_cast<std::byte *>( buf );
+						if( h->write( data, 5 ) != 5 ) {
+							errors++;
+						}
+						h->flush();
+					} catch( const std::exception & e ) {
+						writer_threw = true;
+						errors++;
+						CPPDEBUG( Tools::format(
+							"open-twice '%c' iteration %d threw: %s",
+							tag, i, e.what() ) );
+					} catch( ... ) {
+						writer_threw = true;
+						errors++;
+					}
+				}
+			};
+
+			std::thread ta( writer, 'A', std::ref( errors_a ) );
+			std::thread tb( writer, 'B', std::ref( errors_b ) );
+			ta.join();
+			tb.join();
+
+			if( writer_threw ) {
+				CPPDEBUG( "open-twice: a writer threw" );
+				return false;
+			}
+			if( errors_a > 0 || errors_b > 0 ) {
+				CPPDEBUG( Tools::format(
+					"open-twice: write errors a=%d b=%d",
+					errors_a.load(), errors_b.load() ) );
+				return false;
+			}
+
+			DriveInspect ia;
+			try {
+				ia = inspect_drive( fix, "a" );
+			} catch( const std::exception & e ) {
+				CPPDEBUG( Tools::format(
+					"open-twice: inspect threw '%s'", e.what() ) );
+				return false;
+			}
+			if( !ia.mounted ) {
+				CPPDEBUG( "open-twice: dynamic remount of drive a failed" );
+				return false;
+			}
+
+			auto * f = find_file( ia, "shared" );
+			if( !f ) {
+				CPPDEBUG( "open-twice: shared file missing on disk" );
+				return false;
+			}
+
+			const std::size_t expected_bytes = 2 * N * 5;
+			if( f->contents.size() != expected_bytes ) {
+				CPPDEBUG( Tools::format(
+					"open-twice: wrong size on disk got=%d expected=%d",
+					f->contents.size(), expected_bytes ) );
+				return false;
+			}
+
+			int count_a = 0, count_b = 0;
+			for( std::size_t off = 0; off < f->contents.size(); off += 5 ) {
+				const auto b0 = static_cast<char>( f->contents[off + 0] );
+				const auto b1 = static_cast<char>( f->contents[off + 1] );
+				const auto b2 = static_cast<char>( f->contents[off + 2] );
+				const auto b3 = static_cast<char>( f->contents[off + 3] );
+				const auto b4 = static_cast<char>( f->contents[off + 4] );
+
+				if( b4 != '\n' ) {
+					CPPDEBUG( Tools::format(
+						"open-twice: line at offset %d not terminated",
+						off ) );
+					return false;
+				}
+				if( b0 == 'A' && b1 == 'A' && b2 == 'A' && b3 == 'A' ) {
+					count_a++;
+				} else if( b0 == 'B' && b1 == 'B' && b2 == 'B' && b3 == 'B' ) {
+					count_b++;
+				} else {
+					CPPDEBUG( Tools::format(
+						"open-twice: garbled line at offset %d: '%c%c%c%c'",
+						off, b0, b1, b2, b3 ) );
+					return false;
+				}
+			}
+
+			if( count_a != N || count_b != N ) {
+				CPPDEBUG( Tools::format(
+					"open-twice: line counts wrong a=%d b=%d (each expected %d)",
+					count_a, count_b, N ) );
+				return false;
+			}
+
+			return true;
+		},
+		/* expected_result */ true );
 }
 // AI generated by GitHub Copilot Claude Opus 4.7 END
+
