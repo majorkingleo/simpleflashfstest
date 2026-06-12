@@ -96,6 +96,7 @@ int main( int argc, char ** argv )
 		test_cases.push_back( test_case_vfs_test1_full_flow() );
 		test_cases.push_back( test_case_vfs_two_threads_same_drive_no_lock() );
 		test_cases.push_back( test_case_vfs_two_threads_same_file_open_twice() );
+		test_cases.push_back( test_case_vfs_writer_and_tail_reader() );
 
 		ColBuilder col;
 

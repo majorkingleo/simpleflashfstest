@@ -942,5 +942,291 @@ test_case_vfs_two_threads_same_file_open_twice()
 		},
 		/* expected_result */ true );
 }
+
+// ---------------------------------------------------------------------------
+// One writer + one tail-style reader on the SAME file (open-file table proof
+// for the read-while-write case).
+//
+// Mimics `tail -f`: the writer thread appends N fixed-width lines to
+// "/a/tailfile", flushing after every line. The reader thread holds the
+// same file open in read mode, polls file_size() to detect newly appended
+// bytes, and reads the delta into a per-thread tail buffer. When the writer
+// is done and the reader has consumed every byte, both join and the test
+// validates:
+//
+//   * The reader observed the EXACT same byte stream the writer produced
+//     (i.e. the tail buffer equals "data00000\ndata00001\n...data00049\n").
+//   * The on-disk contents (read back via a fresh dynamic remount) match
+//     the same expected byte stream.
+//   * The reader never observed a torn line, never read 0 bytes when more
+//     should be visible, and never read PAST the writer's high-water mark.
+//
+// This exercises the open-file table in a way the previous two threaded
+// tests don't: the writer mutates the underlying FileHandle's inode
+// (file_len, data_pages, possibly inline data) WHILE the reader is calling
+// file_size() / seek() / read() through a SIBLING ThreadedFileHandle that
+// shares the same OpenFile. Every cross-handle call is serialised by the
+// per-OpenFile mutex, so the reader must always see a consistent snapshot.
+//
+// Line layout: 10 bytes per line, fixed width "data%05d\n" so any
+// byte-level torn append (or a stale read beyond the writer's
+// high-water mark) would show up as a misaligned line in the tail buffer
+// or as a wrong digit at a known offset.
+// ---------------------------------------------------------------------------
+std::shared_ptr<TestCaseBase<bool>>
+test_case_vfs_writer_and_tail_reader()
+{
+	return std::make_shared<TestCaseVfs>(
+		__FUNCTION__,
+		[]( VfsFixture & fix ) {
+			if( !format_both( fix ) ) {
+				CPPDEBUG( "tail-reader: format failed" );
+				return false;
+			}
+
+			constexpr int         N           = 50;
+			constexpr std::size_t LINE_BYTES  = 10;            // "data%05d\n"
+			constexpr std::size_t TOTAL_BYTES = N * LINE_BYTES;
+
+			// Pre-create the file so the read-only open in the reader
+			// thread is guaranteed to find it. We drop the handle
+			// immediately; the OpenFile entry may go away too, but the
+			// inode persists on disk so the next two opens will rebuild
+			// the OpenFile and share it via the open-file table.
+			{
+				auto h0 = fix.vfs->open( "/a/tailfile",
+				                        std::ios::out | std::ios::app );
+				if( !h0 || !h0->valid() ) {
+					CPPDEBUG( "tail-reader: pre-create open failed" );
+					return false;
+				}
+				if( !h0->flush() ) {
+					CPPDEBUG( "tail-reader: pre-create flush failed" );
+					return false;
+				}
+			}
+
+			std::atomic<int>  writer_errors {0};
+			std::atomic<int>  reader_errors {0};
+			std::atomic<bool> writer_threw  {false};
+			std::atomic<bool> reader_threw  {false};
+			std::atomic<bool> writer_done   {false};
+			std::atomic<int>  ready         {0};
+
+			// Buffer the reader accumulates from successive read() calls.
+			// Owned by the lambda's stack so it survives until after both
+			// threads join; the reader thread is the sole writer.
+			std::vector<std::byte> tail_buffer;
+			tail_buffer.reserve( TOTAL_BYTES );
+
+			auto writer = [&]() {
+				try {
+					auto h = fix.vfs->open(
+						"/a/tailfile",
+						std::ios::out | std::ios::app );
+					if( !h || !h->valid() ) {
+						CPPDEBUG( "tail-reader: writer open failed" );
+						writer_errors += N;
+						ready++;
+						writer_done = true;
+						return;
+					}
+
+					ready++;
+					while( ready.load() < 2 ) {
+						std::this_thread::yield();
+					}
+
+					for( int i = 0; i < N; i++ ) {
+						char buf[ LINE_BYTES + 1 ];
+						// Fixed-width "data%05d\n" = exactly LINE_BYTES.
+						std::snprintf( buf, sizeof( buf ),
+						               "data%05d\n", i );
+						auto * data =
+							reinterpret_cast<std::byte *>( buf );
+						if( h->write( data, LINE_BYTES ) != LINE_BYTES ) {
+							writer_errors++;
+						}
+						if( !h->flush() ) {
+							writer_errors++;
+						}
+					}
+				} catch( const std::exception & e ) {
+					writer_threw = true;
+					writer_errors++;
+					CPPDEBUG( Tools::format(
+						"tail-reader: writer threw: %s", e.what() ) );
+				} catch( ... ) {
+					writer_threw = true;
+					writer_errors++;
+				}
+				writer_done = true;
+			};
+
+			auto reader = [&]() {
+				try {
+					auto h = fix.vfs->open(
+						"/a/tailfile", std::ios::in );
+					if( !h || !h->valid() ) {
+						CPPDEBUG( "tail-reader: reader open failed" );
+						reader_errors++;
+						ready++;
+						return;
+					}
+
+					ready++;
+					while( ready.load() < 2 ) {
+						std::this_thread::yield();
+					}
+
+					// Safety deadline so a bug can't hang the suite.
+					const auto deadline =
+						std::chrono::steady_clock::now() +
+						std::chrono::seconds( 30 );
+
+					while( tail_buffer.size() < TOTAL_BYTES ) {
+						if( std::chrono::steady_clock::now() > deadline ) {
+							CPPDEBUG( Tools::format(
+								"tail-reader: reader timed out at %d/%d bytes",
+								tail_buffer.size(), TOTAL_BYTES ) );
+							reader_errors++;
+							return;
+						}
+
+						const std::size_t cur = h->file_size();
+
+						// Reader must never see file_size LESS than what
+						// it has already consumed - writes are append-only.
+						if( cur < tail_buffer.size() ) {
+							CPPDEBUG( Tools::format(
+								"tail-reader: file_size shrank from %d to %d",
+								tail_buffer.size(), cur ) );
+							reader_errors++;
+							return;
+						}
+
+						if( cur == tail_buffer.size() ) {
+							if( writer_done.load() &&
+							    tail_buffer.size() < TOTAL_BYTES ) {
+								CPPDEBUG( Tools::format(
+									"tail-reader: writer finished but reader "
+									"only saw %d/%d bytes",
+									tail_buffer.size(), TOTAL_BYTES ) );
+								reader_errors++;
+								return;
+							}
+							std::this_thread::yield();
+							continue;
+						}
+
+						const std::size_t delta =
+							cur - tail_buffer.size();
+						std::vector<std::byte> tmp( delta );
+						const std::size_t got =
+							h->read( tmp.data(), delta );
+
+						if( got == 0 ) {
+							CPPDEBUG( Tools::format(
+								"tail-reader: read returned 0 with %d "
+								"bytes expected at pos %d",
+								delta, tail_buffer.size() ) );
+							reader_errors++;
+							return;
+						}
+						if( got > delta ) {
+							CPPDEBUG( Tools::format(
+								"tail-reader: read returned %d > requested %d",
+								got, delta ) );
+							reader_errors++;
+							return;
+						}
+
+						tail_buffer.insert( tail_buffer.end(),
+						                    tmp.begin(),
+						                    tmp.begin() + got );
+					}
+				} catch( const std::exception & e ) {
+					reader_threw = true;
+					reader_errors++;
+					CPPDEBUG( Tools::format(
+						"tail-reader: reader threw: %s", e.what() ) );
+				} catch( ... ) {
+					reader_threw = true;
+					reader_errors++;
+				}
+			};
+
+			std::thread tw( writer );
+			std::thread tr( reader );
+			tw.join();
+			tr.join();
+
+			if( writer_threw || reader_threw ) {
+				CPPDEBUG( Tools::format(
+					"tail-reader: thread threw writer=%d reader=%d",
+					 writer_threw.load(), reader_threw.load() ) );
+				return false;
+			}
+			if( writer_errors > 0 || reader_errors > 0 ) {
+				CPPDEBUG( Tools::format(
+					"tail-reader: errors writer=%d reader=%d",
+					writer_errors.load(), reader_errors.load() ) );
+				return false;
+			}
+
+			// Build the expected byte stream.
+			std::ostringstream exp;
+			for( int i = 0; i < N; i++ ) {
+				char buf[ LINE_BYTES + 1 ];
+				std::snprintf( buf, sizeof( buf ), "data%05d\n", i );
+				exp.write( buf, LINE_BYTES );
+			}
+			const std::string expected = exp.str();
+
+			if( tail_buffer.size() != TOTAL_BYTES ) {
+				CPPDEBUG( Tools::format(
+					"tail-reader: tail_buffer wrong size got=%d want=%d",
+					tail_buffer.size(), TOTAL_BYTES ) );
+				return false;
+			}
+
+			if( !bytes_equal( tail_buffer, expected,
+			                  "tail-reader: tail buffer content" ) ) {
+				return false;
+			}
+
+			// Cross-check against the on-disk state via a fresh remount.
+			DriveInspect ia;
+			try {
+				ia = inspect_drive( fix, "a" );
+			} catch( const std::exception & e ) {
+				CPPDEBUG( Tools::format(
+					"tail-reader: inspect threw '%s'", e.what() ) );
+				return false;
+			}
+			if( !ia.mounted ) {
+				CPPDEBUG( "tail-reader: dynamic remount of drive a failed" );
+				return false;
+			}
+			auto * f = find_file( ia, "tailfile" );
+			if( !f ) {
+				CPPDEBUG( "tail-reader: tailfile missing on disk" );
+				return false;
+			}
+			if( f->contents.size() != TOTAL_BYTES ) {
+				CPPDEBUG( Tools::format(
+					"tail-reader: on-disk size wrong got=%d want=%d",
+					f->contents.size(), TOTAL_BYTES ) );
+				return false;
+			}
+			if( !bytes_equal( f->contents, expected,
+			                  "tail-reader: on-disk content" ) ) {
+				return false;
+			}
+
+			return true;
+		},
+		/* expected_result */ true );
+}
 // AI generated by GitHub Copilot Claude Opus 4.7 END
 
