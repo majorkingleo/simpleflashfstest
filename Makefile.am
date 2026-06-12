@@ -3,6 +3,7 @@ bin_PROGRAMS=\
 	test_dynamic \
 	test_static \
 	test_2face \
+	test_vfs \
 	two_drives_dynamic
 		
 simple_flash_fs_tar_SOURCES=\
@@ -75,6 +76,27 @@ two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/FilesystemCommands.cc \
 		simpleflashfs/src_vfs/TestCommands.h \
 		simpleflashfs/src_vfs/TestCommands.cc
+
+test_vfs_SOURCES=\
+		src_test_vfs/test_vfs.cc \
+		src_test_vfs/test_vfs_setup.h \
+		src_test_vfs/test_vfs_setup.cc \
+		src_test_vfs/test_vfs_commands.h \
+		src_test_vfs/test_vfs_commands.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h \
+		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
+		simpleflashfs/src_vfs/FramFsImplDetail.h \
+		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/CommandParser.h \
+		simpleflashfs/src_vfs/CommandParser.cc \
+		simpleflashfs/src_vfs/FilesystemCommands.h \
+		simpleflashfs/src_vfs/FilesystemCommands.cc \
+		simpleflashfs/src_vfs/TestCommands.h \
+		simpleflashfs/src_vfs/TestCommands.cc \
+		simpleflashfs/src_simple_flash_fs_tar/SimpleFlashFsDynamicReadOnly.h \
+		tools_config.h
+		
 		
 
 AM_CPPFLAGS = \
@@ -231,6 +253,13 @@ test_2face_LDADD = \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a			 
 		 
 two_drives_dynamic_LDADD = \
+	src/libSimpleFlashFs.a \
+	cpputils/io/libcpputilsio.a \
+	cpputils/cpputilsshared/libcpputilsshared.a \
+	common/libcommon.a \
+	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
+
+test_vfs_LDADD = \
 	src/libSimpleFlashFs.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
