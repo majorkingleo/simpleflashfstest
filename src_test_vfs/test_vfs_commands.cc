@@ -20,6 +20,8 @@
 #include <format.h>
 #include <string_utils.h>
 #include <sstream>
+#include <thread>
+#include <atomic>
 
 using namespace Tools;
 using namespace test_vfs;
@@ -30,6 +32,12 @@ namespace {
 /**
  * TestCaseVfs: wraps a lambda that gets a freshly-constructed
  * VfsFixture. The lambda returns true on success.
+ *
+ * `expected_result_` defaults to true (normal pass/fail). It can be
+ * set to false to register a test that demonstrates a known failing
+ * behavior - when the bug gets fixed, the test will start failing
+ * (because the actual result no longer matches the expected one) and
+ * the developer will know to flip the expectation.
  */
 class TestCaseVfs : public TestCaseBase<bool>
 {
@@ -40,8 +48,10 @@ private:
 	Func func;
 
 public:
-	TestCaseVfs( const std::string & name_, Func func_ )
-	: TestCaseBase<bool>( name_, true ),
+	TestCaseVfs( const std::string & name_,
+	             Func                func_,
+	             bool                expected_result_ = true )
+	: TestCaseBase<bool>( name_, expected_result_ ),
 	  func( func_ )
 	{
 	}
@@ -627,5 +637,160 @@ std::shared_ptr<TestCaseBase<bool>> test_case_vfs_test1_full_flow()
 		}
 		return true;
 	} );
+}
+
+// ---------------------------------------------------------------------------
+// Two threads, same drive, no locking.
+//
+// Spawns two writer threads that each open() / write() / close() their
+// own file on drive a: in a tight loop. Both threads go through the
+// SAME FramFsImplDetail (one fs instance, one mem simulator). Only
+// SimpleFlashFsThreadedVfsServer::open() and the per-handle
+// ThreadedFileHandle have mutexes - the underlying SimpleFlashFs::write
+// and the fstream-based SimFlashFsFlashMemory have no mutual exclusion.
+//
+// As a result, the threads race on:
+//   - free_data_pages set
+//   - max_inode_number / allocated_unwritten_pages
+//   - the fstream seek/write/read inside the simulator
+//   - inode COW page allocation
+//
+// So at least one of the following is expected:
+//   - some writes return short/zero
+//   - one or both files are missing after the run
+//   - the dynamic mount fails (bad magic / bad CRC)
+//   - the file contents do not match what was written
+//   - an exception propagates out of a writer thread
+//
+// The test body returns `true` only if EVERY check passes (no race
+// surfaced). Because the test is registered with expected_result =
+// false, the runner treats "actual == false" as success: the test
+// passes WHILE the locking bug is present. Once per-drive locking is
+// added, the test will start failing - alerting the developer that
+// the expected behavior changed and the expectation should be flipped.
+// ---------------------------------------------------------------------------
+std::shared_ptr<TestCaseBase<bool>>
+test_case_vfs_two_threads_same_drive_no_lock()
+{
+	return std::make_shared<TestCaseVfs>(
+		__FUNCTION__,
+		[]( VfsFixture & fix ) {
+			if( !format_both( fix ) ) {
+				// If format itself failed we cannot even start; report
+				// `true` (no observable race) which will mis-match the
+				// expected `false` and surface this as a real failure
+				// instead of silently masking it.
+				CPPDEBUG( "two-thread: pre-flight format failed" );
+				return true;
+			}
+
+			constexpr int N = 200;
+
+			std::atomic<int>  errors_a     {0};
+			std::atomic<int>  errors_b     {0};
+			std::atomic<bool> writer_threw {false};
+
+			auto writer = [&]( const std::string & abs_path,
+			                   char                tag,
+			                   std::atomic<int> &  errors ) {
+				for( int i = 1; i <= N; i++ ) {
+					try {
+						auto h = fix.vfs->open(
+							abs_path,
+							std::ios::out | std::ios::app );
+						if( !h || !h->valid() ) {
+							errors++;
+							continue;
+						}
+						std::string line =
+							std::string( 1, tag ) +
+							std::to_string( i ) + "\n";
+						auto * data = reinterpret_cast<std::byte *>(
+							line.data() );
+						if( h->write( data, line.size() ) != line.size() ) {
+							errors++;
+						}
+						h->flush();
+					} catch( const std::exception & e ) {
+						writer_threw = true;
+						errors++;
+						CPPDEBUG( Tools::format(
+							"two-thread '%c' iteration %d threw: %s",
+							tag, i, e.what() ) );
+					} catch( ... ) {
+						writer_threw = true;
+						errors++;
+					}
+				}
+			};
+
+			std::thread ta( writer, "/a/twothreads_A", 'A',
+			                std::ref( errors_a ) );
+			std::thread tb( writer, "/a/twothreads_B", 'B',
+			                std::ref( errors_b ) );
+			ta.join();
+			tb.join();
+
+			if( writer_threw ) {
+				CPPDEBUG(
+					"two-thread: at least one writer caught an exception" );
+				return false; // race observed
+			}
+			if( errors_a > 0 || errors_b > 0 ) {
+				CPPDEBUG( Tools::format(
+					"two-thread: write errors a=%d b=%d",
+					errors_a.load(), errors_b.load() ) );
+				return false;
+			}
+
+			// build expected contents
+			std::ostringstream exp_a, exp_b;
+			for( int i = 1; i <= N; i++ ) {
+				exp_a << "A" << i << "\n";
+				exp_b << "B" << i << "\n";
+			}
+			std::string sa = exp_a.str();
+			std::string sb = exp_b.str();
+
+			DriveInspect ia;
+			try {
+				ia = inspect_drive( fix, "a" );
+			} catch( const std::exception & e ) {
+				CPPDEBUG( Tools::format(
+					"two-thread: inspect threw '%s'", e.what() ) );
+				return false;
+			}
+
+			if( !ia.mounted ) {
+				CPPDEBUG(
+					"two-thread: dynamic re-mount of drive a failed" );
+				return false;
+			}
+
+			auto * fa = find_file( ia, "twothreads_A" );
+			auto * fb = find_file( ia, "twothreads_B" );
+			if( !fa || !fb ) {
+				CPPDEBUG( Tools::format(
+					"two-thread: missing file(s) a=%d b=%d",
+					(fa != nullptr), (fb != nullptr) ) );
+				return false;
+			}
+
+			if( !bytes_equal( fa->contents, sa,
+			                  "twothreads_A content" ) ) {
+				return false;
+			}
+			if( !bytes_equal( fb->contents, sb,
+			                  "twothreads_B content" ) ) {
+				return false;
+			}
+
+			// Every check passed - somehow no race surfaced this run.
+			// Returning true while expected_result is false will mark
+			// the test as FAILED, which is the desired behavior the
+			// moment proper locking is in place.
+			return true;
+		},
+		/* expected_result */ false );
 }
 // AI generated by GitHub Copilot Claude Opus 4.7 END
