@@ -65,8 +65,8 @@ test_2face_SOURCES=\
 
 two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/main.cc \
-		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h \
-		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.h \
+		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \
@@ -83,8 +83,8 @@ test_vfs_SOURCES=\
 		src_test_vfs/test_vfs_setup.cc \
 		src_test_vfs/test_vfs_commands.h \
 		src_test_vfs/test_vfs_commands.cc \
-		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h \
-		simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.cc \
+		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.h \
+		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \

@@ -96,13 +96,12 @@ VfsFixture::VfsFixture( const std::string & name_prefix )
 	mem_drive_b =
 		std::make_shared<SimFlashFsFlashMemory>( drive_b_path, DRIVE_B_AT45_DB321E_SIZE );
 
-	vfs    = std::make_shared<SimpleFlashFs::Vfs::SimpleFlashFsThreadedVfsServer>();
+	vfs    = std::make_shared<SimpleFlashFs::Vfs::SimpleFlashFsVfsServer>();
 	drive_a = std::make_shared<FramFsDriveA>( mem_drive_a.get() );
 	drive_b = std::make_shared<FramFsDriveB>( mem_drive_b.get() );
 
 	vfs->register_drive( drive_a );
 	vfs->register_drive( drive_b );
-	vfs->start();
 
 	parser = std::make_shared<SimpleFlashFs::Vfs::CommandParser>( vfs );
 
@@ -127,18 +126,11 @@ VfsFixture::VfsFixture( const std::string & name_prefix )
 }
 
 VfsFixture::~VfsFixture()
-{
-	if( vfs ) {
-		try {
-			vfs->stop();
-		} catch( ... ) {
-			// destructor must not throw
-		}
-	}
+{	
+	vfs.reset();
 	parser.reset();
 	drive_a.reset();
-	drive_b.reset();
-	vfs.reset();
+	drive_b.reset();	
 
 	// release simulators (closes the underlying fstream) before we
 	// reopen the bin file for inspection in the calling test

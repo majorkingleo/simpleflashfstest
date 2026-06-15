@@ -21,7 +21,7 @@
 
 #include <SimpleFlashFsDynamic.h>
 #include "../simpleflashfs/src/sim_pc/SimFlashMemoryPc.h"
-#include "../simpleflashfs/src_vfs/SimpleFlashFsThreadedVfsServer.h"
+#include "../simpleflashfs/src_vfs/SimpleFlashFsVfsServer.h"
 #include "../simpleflashfs/src_vfs/FramFsImplDetail.h"
 #include "../simpleflashfs/src_vfs/CommandParser.h"
 #include "../simpleflashfs/src_vfs/FilesystemCommands.h"
