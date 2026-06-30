@@ -18,6 +18,7 @@
 #include <memory>
 #include <format.h>
 #include "test_vfs_commands.h"
+#include "test_mrdb_write_entry.h"
 #include <set>
 #include <string_utils.h>
 
@@ -97,6 +98,9 @@ int main( int argc, char ** argv )
 		test_cases.push_back( test_case_vfs_two_threads_same_drive_no_lock() );
 		test_cases.push_back( test_case_vfs_two_threads_same_file_open_twice() );
 		test_cases.push_back( test_case_vfs_writer_and_tail_reader() );
+		test_cases.push_back( test_case_mrdb_write_entry_basic() );
+		test_cases.push_back( test_case_mrdb_write_entry_overwrite() );
+		test_cases.push_back( test_case_mrdb_write_entry_multiple_slots() );
 
 		ColBuilder col;
 

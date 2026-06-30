@@ -5,11 +5,30 @@
             "label": "make",
             "type": "shell",
             "command": "make",
+            "args": ["-j12"],
             "group": "build",
-            "problemMatcher": ["$gcc"],
-            "options": { 
-                "args": ["-j12"]
-            }
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "run test1",
+            "type": "shell",
+            "command": "./two_drives_dynamic",
+            "args": [ "-d", "-c", "format a: ; a: ; test_count count 74 ; cat count ; quit ; "],
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "run test12",
+            "type": "shell",
+            "command": "./test_dynamic",
+            "args": [ "-d", "-t", "12"],
+            "problemMatcher": ["$gcc"]
+        },
+        {
+            "label": "run test49",
+            "type": "shell",
+            "command": "./test_2face",
+            "args": [ "-d", "-t", "49"],
+            "problemMatcher": ["$gcc"]
         }
     ]
 }

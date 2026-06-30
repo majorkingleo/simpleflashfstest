@@ -83,6 +83,12 @@ test_vfs_SOURCES=\
 		src_test_vfs/test_vfs_setup.cc \
 		src_test_vfs/test_vfs_commands.h \
 		src_test_vfs/test_vfs_commands.cc \
+		src_test_vfs/test_mrdb_write_entry.h \
+		src_test_vfs/test_mrdb_write_entry.cc \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.h \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.cc \
+		simpleflashfs/src_2face/SimpleIni.h \
+		simpleflashfs/src_2face/SimpleIni.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.h \
 		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
