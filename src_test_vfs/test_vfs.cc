@@ -19,6 +19,7 @@
 #include <format.h>
 #include "test_vfs_commands.h"
 #include "test_mrdb_write_entry.h"
+#include "test_simple_ini_compact.h"
 #include <set>
 #include <string_utils.h>
 
@@ -101,6 +102,11 @@ int main( int argc, char ** argv )
 		test_cases.push_back( test_case_mrdb_write_entry_basic() );
 		test_cases.push_back( test_case_mrdb_write_entry_overwrite() );
 		test_cases.push_back( test_case_mrdb_write_entry_multiple_slots() );
+		test_cases.push_back( test_case_simple_ini_compact_float_no_human_readable_comment() );
+		test_cases.push_back( test_case_simple_ini_compact_float_roundtrip() );
+		test_cases.push_back( test_case_simple_ini_compact_smaller_than_normal() );
+		test_cases.push_back( test_case_mrdb_write_entry_compact() );
+		test_cases.push_back( test_case_mrdb_write_entry_full() );
 
 		ColBuilder col;
 
