@@ -1058,7 +1058,7 @@ std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_compact()
 }
 
 
-std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_full()
+std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_full_hash()
 {
     return std::make_shared<TestCaseVfsLambda>( __FUNCTION__,
         []( VfsFixture & fix ) -> bool {
@@ -1066,6 +1066,8 @@ std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_full()
                 CPPDEBUG( "test_case_mrdb_write_entry_full: format failed" );
                 return false;
             }
+
+            fix.drive_b->set_name_cache( std::make_unique<FramFsFileNameCacheDynamicHash>() );
 
             for( unsigned n = 1; n <= 1000; ++n ) {
 
@@ -1134,6 +1136,29 @@ std::shared_ptr<TestCaseBase<bool>> test_case_read_full_static()
             }
 
             fix.drive_b->set_name_cache( std::make_unique<FramFsFileNameCacheStatic>() );
+
+            for( unsigned n = 1; n <= 1000; ++n ) {
+
+                CPPDEBUG( Tools::format( "test_case_read_full: reading entry %u", n ) );     
+
+                // Read back and verify values
+                read_entry_from_vfs( *fix.vfs, n );
+            }
+
+            return true;
+        } );
+}
+
+std::shared_ptr<TestCaseBase<bool>> test_case_read_full_hash()
+{
+    return std::make_shared<TestCaseVfsLambda>( __FUNCTION__,
+        []( VfsFixture & fix ) -> bool {
+            if( !fix.run( "format a: ; format b: ;" ).all_ok ) {
+                CPPDEBUG( "test_case_read_full: format failed" );
+                return false;
+            }
+
+            fix.drive_b->set_name_cache( std::make_unique<FramFsFileNameCacheDynamicHash>() );
 
             for( unsigned n = 1; n <= 1000; ++n ) {
 
