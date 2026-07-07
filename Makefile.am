@@ -70,6 +70,8 @@ two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/FramFsFileNameCache.h \
+		simpleflashfs/src_vfs/FramFsFileNameCache.cc \
 		simpleflashfs/src_vfs/CommandParser.h \
 		simpleflashfs/src_vfs/CommandParser.cc \
 		simpleflashfs/src_vfs/FilesystemCommands.h \
@@ -87,6 +89,8 @@ test_vfs_SOURCES=\
 		src_test_vfs/test_mrdb_write_entry.cc \
 		src_test_vfs/test_simple_ini_compact.h \
 		src_test_vfs/test_simple_ini_compact.cc \
+		src_test_vfs/test_file_name_cache.h \
+		src_test_vfs/test_file_name_cache.cc \
 		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.h \
 		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.cc \
 		simpleflashfs/src_2face/SimpleIni.h \
@@ -96,6 +100,8 @@ test_vfs_SOURCES=\
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/FramFsFileNameCache.h \
+		simpleflashfs/src_vfs/FramFsFileNameCache.cc \
 		simpleflashfs/src_vfs/CommandParser.h \
 		simpleflashfs/src_vfs/CommandParser.cc \
 		simpleflashfs/src_vfs/FilesystemCommands.h \
