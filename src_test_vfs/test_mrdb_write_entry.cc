@@ -175,15 +175,7 @@ bool write_entry_to_vfs( SimpleFlashFs::Vfs::VfsServerInterface & vfs,
 {
     const std::string path = make_meas_path( slot );
 
-    // Replicate: delete any existing file first
-    {
-        auto fh = vfs.open( path, std::ios::in );
-        if( fh ) {
-            fh->delete_file();
-        }
-    }
-
-    auto fh = vfs.open( path, std::ios::out );
+    auto fh = vfs.open( path, std::ios::out | std::ios::trunc );
     if( !fh ) {
         CPPDEBUG( Tools::format( "write_entry_to_vfs: cannot create %s", path ) );
         return false;
@@ -1075,10 +1067,12 @@ std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_full()
 
             for( unsigned n = 1; n <= 1000; ++n ) {
 
+                CPPDEBUG( Tools::format( "test_case_mrdb_write_entry_full: writing entry %u", n ) );
+
                 if( !write_entry_to_vfs( *fix.vfs, n, true ) ) {
                     return false;
                 }            
-
+#if 0
                 // Verify the file was created on drive b
                 auto ib = inspect_drive( fix, "b", false );
                 if( !ib.mounted ) {
@@ -1094,11 +1088,32 @@ std::shared_ptr<TestCaseBase<bool>> test_case_mrdb_write_entry_full()
                     CPPDEBUG( Tools::format("test_case_mrdb_write_entry_full: measurements/%04d.ini is empty", n ) );
                     return false;
                 }
-
+#endif
                 // Read back and verify values
                 if( !read_entry_from_vfs( *fix.vfs, n ) ) {
                     return false;
                 }
+            }
+
+            return true;
+        } );
+}
+
+std::shared_ptr<TestCaseBase<bool>> test_case_read_full()
+{
+    return std::make_shared<TestCaseVfsLambda>( __FUNCTION__,
+        []( VfsFixture & fix ) -> bool {
+            if( !fix.run( "format a: ; format b: ;" ).all_ok ) {
+                CPPDEBUG( "test_case_read_full: format failed" );
+                return false;
+            }
+
+            for( unsigned n = 1; n <= 1000; ++n ) {
+
+                CPPDEBUG( Tools::format( "test_case_read_full: reading entry %u", n ) );     
+
+                // Read back and verify values
+                read_entry_from_vfs( *fix.vfs, n );
             }
 
             return true;

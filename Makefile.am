@@ -230,13 +230,17 @@ cpputils_cpputilsshared_cpputilsformat_libcpputilsformat_a_SOURCES= \
 common_libcommon_a_SOURCES=\
 	common/TestUtils.h \
 	common/ColBuilder.h \
-	common/ColBuilder.cc
+	common/ColBuilder.cc \
+	common/AsyncOutDebug.h \
+	common/AsyncOutDebug.cc \
+	common/SimOutDebug.h \
+	common/SimOutDebug.cc
 
 simple_flash_fs_tar_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 	
 test_dynamic_LDADD = \
@@ -248,30 +252,30 @@ test_dynamic_LDADD = \
 	
 test_static_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a	
 		 
 test_2face_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a			 
 		 
 two_drives_dynamic_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 
 test_vfs_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 
 LIBS=

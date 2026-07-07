@@ -22,6 +22,7 @@
 #include "test_simple_ini_compact.h"
 #include <set>
 #include <string_utils.h>
+#include <SimOutDebug.h>
 
 using namespace Tools;
 
@@ -56,13 +57,18 @@ int main( int argc, char ** argv )
 	o_testcase.setRequired( false );
 	arg.addOptionR( &o_testcase );
 
+	Arg::FlagOption o_list_tests( "l" );
+    o_list_tests.addName( "list-tests" );
+    o_list_tests.setDescription( "List all available tests" );
+    arg.addOptionR( &o_list_tests );
+
 	if( !arg.parse() ) {
 		std::cout << arg.getHelp( 5, 20, 30, 80 ) << std::endl;
 		return 1;
 	}
 
-	if( o_debug.getState() ) {
-		Tools::x_debug = new OutDebug();
+	if( o_debug.getState() ) {		
+		SimOutDebug::init();
 	}
 
 	if( o_help.getState() ) {
@@ -107,6 +113,16 @@ int main( int argc, char ** argv )
 		test_cases.push_back( test_case_simple_ini_compact_smaller_than_normal() );
 		test_cases.push_back( test_case_mrdb_write_entry_compact() );
 		test_cases.push_back( test_case_mrdb_write_entry_full() );
+		test_cases.push_back( test_case_read_full() );
+
+
+        if( o_list_tests.getState() ) {
+            std::cout << "Available tests:" << std::endl;
+            for( unsigned i = 0; i < test_cases.size(); ++i ) {
+                std::cout << Tools::format( "  %2d: %s", i + 1, test_cases[i]->getName() ) << std::endl;
+            }
+            return 0;
+        }
 
 		ColBuilder col;
 
