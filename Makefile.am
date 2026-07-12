@@ -70,6 +70,8 @@ two_drives_dynamic_SOURCES=\
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/FramFsFileNameCache.h \
+		simpleflashfs/src_vfs/FramFsFileNameCache.cc \
 		simpleflashfs/src_vfs/CommandParser.h \
 		simpleflashfs/src_vfs/CommandParser.cc \
 		simpleflashfs/src_vfs/FilesystemCommands.h \
@@ -83,11 +85,23 @@ test_vfs_SOURCES=\
 		src_test_vfs/test_vfs_setup.cc \
 		src_test_vfs/test_vfs_commands.h \
 		src_test_vfs/test_vfs_commands.cc \
+		src_test_vfs/test_mrdb_write_entry.h \
+		src_test_vfs/test_mrdb_write_entry.cc \
+		src_test_vfs/test_simple_ini_compact.h \
+		src_test_vfs/test_simple_ini_compact.cc \
+		src_test_vfs/test_file_name_cache.h \
+		src_test_vfs/test_file_name_cache.cc \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.h \
+		simpleflashfs/src_2face/SimpleFlashFsFileBuffer.cc \
+		simpleflashfs/src_2face/SimpleIni.h \
+		simpleflashfs/src_2face/SimpleIni.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.h \
 		simpleflashfs/src_vfs/SimpleFlashFsVfsServer.cc \
 		simpleflashfs/src_vfs/SimpleFlashFsVfs.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.h \
 		simpleflashfs/src_vfs/FramFsImplDetail.cc \
+		simpleflashfs/src_vfs/FramFsFileNameCache.h \
+		simpleflashfs/src_vfs/FramFsFileNameCache.cc \
 		simpleflashfs/src_vfs/CommandParser.h \
 		simpleflashfs/src_vfs/CommandParser.cc \
 		simpleflashfs/src_vfs/FilesystemCommands.h \
@@ -222,13 +236,17 @@ cpputils_cpputilsshared_cpputilsformat_libcpputilsformat_a_SOURCES= \
 common_libcommon_a_SOURCES=\
 	common/TestUtils.h \
 	common/ColBuilder.h \
-	common/ColBuilder.cc
+	common/ColBuilder.cc \
+	common/AsyncOutDebug.h \
+	common/AsyncOutDebug.cc \
+	common/SimOutDebug.h \
+	common/SimOutDebug.cc
 
 simple_flash_fs_tar_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 	
 test_dynamic_LDADD = \
@@ -240,30 +258,30 @@ test_dynamic_LDADD = \
 	
 test_static_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a	
 		 
 test_2face_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a			 
 		 
 two_drives_dynamic_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 
 test_vfs_LDADD = \
 	src/libSimpleFlashFs.a \
+	common/libcommon.a \
 	cpputils/io/libcpputilsio.a \
 	cpputils/cpputilsshared/libcpputilsshared.a \
-	common/libcommon.a \
 	cpputils/cpputilsshared/cpputilsformat/libcpputilsformat.a
 
 LIBS=

@@ -138,8 +138,9 @@ VfsFixture::~VfsFixture()
 	mem_drive_b.reset();
 
 	std::error_code ec;
-	std::filesystem::remove( drive_a_path, ec );
-	std::filesystem::remove( drive_b_path, ec );
+	// let it stay for analysis if a test fails, so don't delete the bin files here
+	// std::filesystem::remove( drive_a_path, ec );
+	// std::filesystem::remove( drive_b_path, ec );
 }
 
 VfsFixture::CmdSeqResult VfsFixture::run( const std::string & cmd_sequence )

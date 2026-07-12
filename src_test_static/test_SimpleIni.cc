@@ -1236,3 +1236,91 @@ std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_10()
 	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 512,
 				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
 }
+
+
+std::shared_ptr<TestCaseBase<bool>> test_case_simple_ini_write_11()
+{
+	std::string expected_text =
+			"[CPU Temperature]\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max1 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max2 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max3 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max4 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max5 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max6 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max7 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max8 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max9 = 0xFFF0000000000000\n" \
+			"\"\t(-inf)\n" \
+			"\tCPU_max10 = 0xFFF0000000000000\n" \
+			"\n" \
+			"[global]\n" \
+			"\tcurrent_idx = 10\n" \
+			"\tglobal_writes = 9\n";
+
+	auto test_func = []( SimpleFlashFs::FileBuffer & file ) {
+
+		const unsigned MAX_CYCLES = 10;
+		unsigned global_writes = 1;
+
+		const char *SECTION_GLOBAL    = "global";
+		const char *SECTION_CPU_TEMP  = "CPU Temperature";
+
+		const char *KEY_CURRENT_IDX   = "current_idx";
+		const char *KEY_GLOBAL_WRITES = "global_writes";
+		const char *KEY_CPU_MAX       = "CPU_max";
+
+		SimpleIni<1024> ini( file );
+
+		for( unsigned i = 0; i < MAX_CYCLES; ++i ) {				
+
+			int32_t current_idx = -1;
+			ini.read( SECTION_GLOBAL, KEY_CURRENT_IDX,   current_idx );
+
+			int32_t global_writes = -1;
+			ini.read( SECTION_GLOBAL, KEY_GLOBAL_WRITES, global_writes );
+
+
+			if( current_idx < 0 ) {
+				current_idx = 0;
+			} else if( current_idx > 100 ) {
+				current_idx = 0;
+			}
+
+			current_idx++;
+			global_writes++;
+
+			std::string key = Tools::format( "%s%d", KEY_CPU_MAX, current_idx );
+			double dval = -1.0/0.0;
+
+			if( !ini.write( SECTION_CPU_TEMP, key, dval ) ) {
+				CPPDEBUG( Tools::format("writing %s failed", key ) );
+				return false;
+			}
+
+			if( !ini.write( SECTION_GLOBAL, KEY_CURRENT_IDX, current_idx  ) ) {
+				CPPDEBUG( Tools::format("writing %s failed", "curent_idx" ) );
+				return false;
+			}
+
+			if( !ini.write( SECTION_GLOBAL, KEY_GLOBAL_WRITES, global_writes  ) ) {
+				CPPDEBUG( Tools::format("writing %s failed", "global_writes" ) );
+				return false;
+			}			
+		}
+
+		return true;
+	};
+
+	return std::make_shared<TestCaseFuncWriteIni>(__FUNCTION__, test_func, 1024,
+				std::ios_base::in | std::ios_base::out | std::ios_base::trunc, false, expected_text );
+}
